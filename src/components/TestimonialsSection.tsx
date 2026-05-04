@@ -116,23 +116,16 @@ export default function TestimonialsSection() {
         {/* Two-column: video left, content right */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
 
-          {/* LEFT — video player */}
+          {/* LEFT — video player + vision card */}
           <motion.div
             initial={{ opacity: 0, x: -24 }}
             animate={headerInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <TestimonialVideoPlayer />
-          </motion.div>
-
-          {/* RIGHT — vision card + testimonial cards */}
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={headerInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col gap-5"
           >
-            {/* Vision card */}
+            <TestimonialVideoPlayer />
+
+            {/* Vision card below video */}
             <div className="premium-card rounded-2xl p-7 electric-border">
               <p className="text-xl font-bold text-foreground mb-3 leading-snug">
                 Vision + Automation
@@ -144,8 +137,15 @@ export default function TestimonialsSection() {
                 websites, the goal is always the same: predictable growth.
               </p>
             </div>
+          </motion.div>
 
-            {/* Testimonial cards */}
+          {/* RIGHT — testimonial cards */}
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={headerInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col gap-5"
+          >
             {testimonials.map((t, i) => (
               <TestimonialCard key={t.id} testimonial={t} index={i} />
             ))}
