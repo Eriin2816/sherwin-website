@@ -1,0 +1,298 @@
+@import "@fontsource/geist-sans/400.css";
+@import "@fontsource/geist-sans/500.css";
+@import "@fontsource/geist-sans/600.css";
+@import "@fontsource/geist-sans/700.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand: Electric Cyan / Deep Navy */
+    --background: 214 44% 5%;
+    --foreground: 195 10% 92%;
+    --card: 214 35% 8%;
+    --card-foreground: 195 10% 92%;
+    --popover: 214 35% 8%;
+    --popover-foreground: 195 10% 92%;
+    --primary: 191 83% 43%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 30% 12%;
+    --secondary-foreground: 195 10% 92%;
+    --muted: 214 30% 12%;
+    --muted-foreground: 210 15% 55%;
+    --accent: 191 83% 43%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 25% 14%;
+    --input: 214 25% 14%;
+    --ring: 191 83% 43%;
+    --radius: 0.75rem;
+    --hero-heading: 195 15% 96%;
+    --hero-sub: 210 12% 72%;
+  }
+
+  .light {
+    --background: 210 30% 97%;
+    --foreground: 214 44% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 214 44% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 214 44% 8%;
+    --primary: 191 83% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 20% 92%;
+    --secondary-foreground: 214 44% 8%;
+    --muted: 210 20% 92%;
+    --muted-foreground: 214 20% 45%;
+    --accent: 191 83% 38%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 20% 86%;
+    --input: 210 20% 86%;
+    --ring: 191 83% 38%;
+    --hero-heading: 214 44% 8%;
+    --hero-sub: 214 20% 35%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Geist Sans', 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: rgba(13, 172, 201, 0.25);
+    color: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(214 44% 5%);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(13, 172, 201, 0.3);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(13, 172, 201, 0.5);
+  }
+}
+
+@layer utilities {
+  /* Liquid Glass Panel */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 4px 24px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      180deg,
+      rgba(255,255,255,0.18) 0%,
+      rgba(255,255,255,0.06) 25%,
+      rgba(255,255,255,0) 50%,
+      rgba(255,255,255,0.03) 75%,
+      rgba(255,255,255,0.12) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Section Shell */
+  .section-shell {
+    @apply max-w-7xl mx-auto px-6 md:px-10 lg:px-16;
+  }
+
+  /* Premium Card */
+  .premium-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.025) 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 4px 32px rgba(0,0,0,0.4);
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    background: linear-gradient(90deg, #0DACC9 0%, #34D4F0 25%, #7DE8F5 50%, #0DACC9 75%, #34D4F0 100%);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-run 3s linear infinite;
+  }
+
+  @keyframes gradient-run {
+    0% { background-position: 0% center; }
+    100% { background-position: 300% center; }
+  }
+
+  /* Glow Text */
+  .glow-text {
+    text-shadow: 0 0 40px rgba(13,172,201,0.4);
+  }
+
+  /* Animated Grid Background */
+  .animated-grid-bg {
+    background-image:
+      linear-gradient(rgba(13,172,201,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(13,172,201,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Dot grid */
+  .dot-grid-bg {
+    background-image: radial-gradient(circle, rgba(13,172,201,0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Section separator */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(13,172,201,0.2), transparent);
+  }
+
+  /* Electric border */
+  .electric-border {
+    border: 1px solid rgba(13,172,201,0.35);
+    box-shadow: 0 0 30px rgba(13,172,201,0.1) inset, 0 0 30px rgba(13,172,201,0.08);
+  }
+
+  /* No scrollbar */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ── Premium Background System ─────────────────────────────────────────── */
+
+  /* Site-wide layered base — applied to the app root wrapper */
+  .bg-premium-base {
+    background-image:
+      radial-gradient(ellipse 80% 40% at 15% 0%,   hsla(191, 83%, 43%, 0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 85% 100%,  hsla(220, 75%, 55%, 0.05) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 60% at 50% 50%,  hsla(250, 55%, 48%, 0.03) 0%, transparent 65%);
+  }
+
+  /* Faint grid, edge-masked so it fades out toward the perimeter */
+  .bg-grid-fade {
+    background-image:
+      linear-gradient(hsla(191, 83%, 43%, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, hsla(191, 83%, 43%, 0.04) 1px, transparent 1px);
+    background-size: 52px 52px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+  }
+
+  /* Diagonal ambient sweep — very low opacity */
+  .bg-ambient-layer {
+    background: linear-gradient(
+      135deg,
+      hsla(191, 83%, 43%, 0.04) 0%,
+      transparent 35%,
+      hsla(220, 75%, 55%, 0.03) 65%,
+      transparent 100%
+    );
+  }
+
+  /* Positioned glow orb base */
+  .bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  /* Cyan orb */
+  .bg-orb-cyan {
+    background: radial-gradient(circle, hsla(191, 83%, 43%, 0.18) 0%, transparent 70%);
+    filter: blur(60px);
+  }
+
+  /* Violet orb */
+  .bg-orb-violet {
+    background: radial-gradient(circle, hsla(250, 60%, 55%, 0.14) 0%, transparent 70%);
+    filter: blur(72px);
+  }
+
+  /* Indigo orb */
+  .bg-orb-indigo {
+    background: radial-gradient(circle, hsla(220, 75%, 55%, 0.12) 0%, transparent 70%);
+    filter: blur(80px);
+  }
+
+  /* Slow float animation for ambient orbs */
+  @keyframes orb-float-a {
+    0%, 100% { transform: translate(0px,  0px)  scale(1.00); }
+    40%       { transform: translate(18px, -14px) scale(1.04); }
+    70%       { transform: translate(-10px, 8px)  scale(0.97); }
+  }
+  @keyframes orb-float-b {
+    0%, 100% { transform: translate(0px,   0px)   scale(1.00); }
+    35%       { transform: translate(-16px, 12px)  scale(1.03); }
+    68%       { transform: translate(12px, -10px)  scale(0.98); }
+  }
+  @keyframes orb-float-c {
+    0%, 100% { transform: translate(0px,  0px)  scale(1.00); }
+    45%       { transform: translate(10px, 16px) scale(1.02); }
+    75%       { transform: translate(-8px, -6px) scale(0.99); }
+  }
+
+  .orb-a { animation: orb-float-a 20s ease-in-out infinite; }
+  .orb-b { animation: orb-float-b 17s ease-in-out infinite; }
+  .orb-c { animation: orb-float-c 23s ease-in-out infinite; }
+
+  /* Vignette — soft inner dark ring for depth */
+  .bg-vignette::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, hsla(214, 44%, 3%, 0.35) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Reduce motion */
+  @media (prefers-reduced-motion: reduce) {
+    .orb-a, .orb-b, .orb-c {
+      animation: none !important;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
