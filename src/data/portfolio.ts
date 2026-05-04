@@ -436,9 +436,9 @@ export const contactLinks = {
 }
 
 export const socialLinks = {
-  linkedin: 'https://linkedin.com/in/sherwinmarcelo',
-  github: 'https://github.com/sherwinmarcelo',
-  twitter: 'https://x.com/sherwinmarcelo',
+  linkedin: 'https://www.linkedin.com/in/sherwin-marcelo-b222372a5/',
+  github: 'https://github.com/Eriin2816',
+  facebook: 'https://www.facebook.com/sherwin.garcia.marcelo/',
   email: 'mailto:marcelo.taweng@gmail.com',
 }
 
