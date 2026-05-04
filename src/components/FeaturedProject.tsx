@@ -4,9 +4,8 @@ import { Play, ArrowRight, ExternalLink } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import SectionBackground from '@/components/SectionBackground'
-// Place your MP4 at: brand_assets/Claude Final FB compressed FINAL.mp4
-// Vite serves it as a static asset via the assetsInclude config
-import featuredVideoSrc from '../../brand_assets/Claude Final FB compressed FINAL.mp4'
+
+const featuredVideoSrc = '/videos/featured.mp4'
 
 const TECH_STACK = ['Remotion', 'TypeScript', 'Claude Code', 'FFmpeg', 'Brand Asset Kit']
 

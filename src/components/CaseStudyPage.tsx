@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Play, CheckCircle2, ExternalLink } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import featuredVideoSrc from '../../brand_assets/Claude Final FB compressed FINAL.mp4'
+const featuredVideoSrc = '/videos/featured.mp4'
 
 const TECH = ['Remotion', 'TypeScript', 'Claude Code', 'FFmpeg', 'Brand Asset Kit']
 

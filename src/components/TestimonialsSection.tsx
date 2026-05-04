@@ -4,7 +4,8 @@ import { motion, useInView } from 'framer-motion'
 import { Quote, Play } from 'lucide-react'
 import { testimonials } from '@/data/portfolio'
 import SectionBackground from '@/components/SectionBackground'
-import testimonialVideo from '../../brand_assets/testimonial.mp4'
+
+const testimonialVideo = '/videos/testimonial.mp4'
 
 function TestimonialCard({ testimonial, index }: { testimonial: typeof testimonials[0]; index: number }) {
   const ref = useRef<HTMLElement>(null)
