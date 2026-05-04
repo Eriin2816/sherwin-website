@@ -9,7 +9,7 @@ export default function TechStackSection() {
 
   return (
     <section className="py-20 border-y border-border/30 relative overflow-hidden">
-      <SectionBackground variant="dual-soft" showGrid />
+      <SectionBackground variant="dual-soft" />
       <div className="section-shell relative z-10">
         <motion.div
           ref={ref}

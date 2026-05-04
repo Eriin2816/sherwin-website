@@ -66,8 +66,7 @@ export default function ServicesSection() {
 
   return (
     <section id="services" className="py-20 relative overflow-hidden" style={{background: 'linear-gradient(180deg, transparent 0%, rgba(13,172,201,0.025) 50%, transparent 100%)'}}>
-      <SectionBackground variant="violet-left" showGrid />
-      <div className="absolute inset-0 animated-grid-bg opacity-20 pointer-events-none" />
+      <SectionBackground variant="violet-left" />
       <div className="section-shell relative">
         {/* Header */}
         <motion.div

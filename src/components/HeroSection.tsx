@@ -25,9 +25,6 @@ export default function HeroSection() {
       <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-[#0DACC9]/6 blur-[120px] pointer-events-none animate-pulse-glow" />
       <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] rounded-full bg-[#0DACC9]/4 blur-[100px] pointer-events-none" style={{ animationDelay: '1.5s' }} />
 
-      {/* Grid overlay */}
-      <div className="absolute inset-0 dot-grid-bg opacity-30 pointer-events-none" />
-
       <div className="section-shell relative z-10 pt-32 pb-24 text-center">
         {/* Eyebrow badge */}
         <motion.div {...fadeUp(0.1)} className="flex justify-center mb-8">

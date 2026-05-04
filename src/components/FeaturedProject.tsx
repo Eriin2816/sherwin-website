@@ -105,7 +105,6 @@ export default function FeaturedProject() {
   return (
     <section className="py-20 relative overflow-hidden">
       <SectionBackground variant="blue-right" />
-      <div className="absolute inset-0 animated-grid-bg opacity-25 pointer-events-none" />
 
       <div className="section-shell relative z-10">
         <motion.div

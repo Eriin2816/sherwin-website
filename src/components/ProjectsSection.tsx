@@ -61,7 +61,6 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
 
           {/* 16:9 Placeholder image */}
           <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 flex items-center justify-center relative overflow-hidden rounded-t-2xl">
-            <div className="absolute inset-0 animated-grid-bg opacity-20 pointer-events-none" />
             <div className="relative flex flex-col items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-[#0DACC9]/15 border border-[#0DACC9]/25 flex items-center justify-center">
                 <Layers size={22} className="text-[#0DACC9]" />
@@ -265,7 +264,7 @@ export default function ProjectsSection() {
   return (
     <>
       <section id="projects" className="py-20 relative overflow-hidden">
-        <SectionBackground variant="grid-fade" showGrid />
+        <SectionBackground variant="grid-fade" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-[#0DACC9]/3 blur-[120px] pointer-events-none" />
 
         <div className="section-shell relative z-10">

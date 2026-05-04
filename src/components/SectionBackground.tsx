@@ -6,11 +6,10 @@
 
 interface Props {
   variant?: 'violet-left' | 'blue-right' | 'dual-soft' | 'grid-fade' | 'footer-depth' | 'ambient' | 'center-bloom'
-  showGrid?: boolean
   className?: string
 }
 
-export default function SectionBackground({ variant = 'ambient', showGrid = false, className = '' }: Props) {
+export default function SectionBackground({ variant = 'ambient', className = '' }: Props) {
   return (
     <div className={`absolute inset-0 pointer-events-none overflow-hidden ${className}`} aria-hidden="true">
 
@@ -69,11 +68,6 @@ export default function SectionBackground({ variant = 'ambient', showGrid = fals
           <div className="bg-orb bg-orb-cyan orb-b w-[380px] h-[280px] top-0 right-0 opacity-40" />
           <div className="bg-orb bg-orb-violet orb-a w-[300px] h-[260px] bottom-0 left-0 opacity-35" />
         </>
-      )}
-
-      {/* Optional faint edge-masked grid overlay */}
-      {showGrid && (
-        <div className="absolute inset-0 bg-grid-fade opacity-60" />
       )}
 
     </div>

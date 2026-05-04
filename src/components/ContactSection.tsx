@@ -14,7 +14,6 @@ export default function ContactSection() {
     <section id="contact" className="py-20 relative overflow-hidden">
       <SectionBackground variant="footer-depth" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full bg-[#0DACC9]/5 blur-[100px] pointer-events-none" />
-      <div className="absolute inset-0 dot-grid-bg opacity-20 pointer-events-none" />
 
       <div className="section-shell relative z-10">
         {/* Header */}

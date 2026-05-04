@@ -82,7 +82,6 @@ export default function CaseStudyPage() {
     <div className="min-h-screen bg-background pt-24 pb-20">
       {/* Background glow */}
       <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-[#0DACC9]/4 blur-[120px] pointer-events-none" />
-      <div className="absolute inset-0 dot-grid-bg opacity-20 pointer-events-none" />
 
       <div className="section-shell relative">
         {/* Back button */}
@@ -270,7 +269,6 @@ export default function CaseStudyPage() {
           {...fadeUp(0.4)}
           className="premium-card electric-border rounded-2xl px-8 py-10 text-center relative overflow-hidden"
         >
-          <div className="absolute inset-0 animated-grid-bg opacity-30 pointer-events-none" />
           <p className="text-[#0DACC9] text-xs font-semibold uppercase tracking-widest mb-3 relative">
             Ready to Build?
           </p>

@@ -15,7 +15,7 @@ export default function FAQSection() {
 
   return (
     <section id="faq" className="py-20 relative overflow-hidden">
-      <SectionBackground variant="grid-fade" showGrid />
+      <SectionBackground variant="grid-fade" />
       <div className="section-shell relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           <motion.div

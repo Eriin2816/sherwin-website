@@ -23,7 +23,6 @@ export default function CTASection() {
           className="premium-card electric-border rounded-3xl px-8 py-16 md:px-16 text-center relative overflow-hidden"
         >
           {/* Background pattern */}
-          <div className="absolute inset-0 animated-grid-bg opacity-30 pointer-events-none rounded-3xl" />
 
           {/* Top icon */}
           <div className="flex justify-center mb-6">

@@ -14,6 +14,7 @@ import CTASection from '@/components/CTASection'
 import ContactSection from '@/components/ContactSection'
 import Footer from '@/components/Footer'
 import CaseStudyPage from '@/components/CaseStudyPage'
+import ParticleBackground from '@/components/ParticleBackground'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -59,6 +60,7 @@ function AppShell() {
 
   return (
     <div className="min-h-screen bg-background bg-premium-base text-foreground overflow-x-hidden">
+      <ParticleBackground />
       <ScrollToTop />
       <Navbar theme={theme} onToggleTheme={toggleTheme} />
       <Routes>
