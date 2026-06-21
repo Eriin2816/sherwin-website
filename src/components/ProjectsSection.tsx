@@ -11,6 +11,9 @@ const categoryColors: Record<string, string> = {
   Automation: 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
   GoHighLevel: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
   'Web Dev': 'text-violet-400 bg-violet-400/10 border-violet-400/20',
+  'n8n': 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
+  'AI': 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
+  'GHL': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
 }
 
 // ── Case Study Modal ──────────────────────────────────────────────────────────
@@ -59,16 +62,26 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
             <X size={14} />
           </button>
 
-          {/* 16:9 Placeholder image */}
-          <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 flex items-center justify-center relative overflow-hidden rounded-t-2xl">
-            <div className="relative flex flex-col items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-[#0DACC9]/15 border border-[#0DACC9]/25 flex items-center justify-center">
-                <Layers size={22} className="text-[#0DACC9]" />
+          {/* Modal image */}
+          <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
+            {project.image ? (
+              <img
+                src={project.image}
+                alt={project.title}
+                className="w-full h-full object-cover object-top"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="relative flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-[#0DACC9]/15 border border-[#0DACC9]/25 flex items-center justify-center">
+                    <Layers size={22} className="text-[#0DACC9]" />
+                  </div>
+                  <span className="text-muted-foreground/50 text-xs font-medium uppercase tracking-widest">
+                    Preview Coming Soon
+                  </span>
+                </div>
               </div>
-              <span className="text-muted-foreground/50 text-xs font-medium uppercase tracking-widest">
-                Preview Coming Soon
-              </span>
-            </div>
+            )}
           </div>
 
           {/* Content */}
@@ -172,8 +185,19 @@ function ProjectCard({
       transition={{ duration: 0.65, delay: Math.min(index * 0.08, 0.4), ease: [0.16, 1, 0.3, 1] }}
       className="group relative premium-card rounded-2xl overflow-hidden flex flex-col h-full"
     >
-      {/* Top color band */}
-      <div className="h-1 w-full bg-gradient-to-r from-[#0DACC9]/60 via-[#34D4F0]/80 to-[#0DACC9]/40 shrink-0" />
+      {/* Top image or color band */}
+      {project.image ? (
+        <div className="relative overflow-hidden shrink-0" style={{ height: '168px' }}>
+          <img
+            src={project.image}
+            alt={project.title}
+            className="w-full h-full object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/70 via-transparent to-transparent" />
+        </div>
+      ) : (
+        <div className="h-1 w-full bg-gradient-to-r from-[#0DACC9]/60 via-[#34D4F0]/80 to-[#0DACC9]/40 shrink-0" />
+      )}
 
       <div className="p-7 flex flex-col flex-1">
         {/* Category badge */}
@@ -195,11 +219,22 @@ function ProjectCard({
           {project.description}
         </p>
 
-        {/* Impact callout */}
-        <div className="rounded-xl bg-[#0DACC9]/5 border border-[#0DACC9]/15 px-4 py-3 mb-5">
-          <p className="text-xs font-semibold text-[#0DACC9] uppercase tracking-wide mb-1">Impact</p>
-          <p className="text-foreground/80 text-sm leading-relaxed">{project.impact}</p>
-        </div>
+        {/* Highlights or Impact callout */}
+        {project.highlights ? (
+          <ul className="space-y-2 mb-5">
+            {project.highlights.map((h, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
+                <span className="text-[#0DACC9] shrink-0 mt-0.5 font-bold">•</span>
+                {h}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="rounded-xl bg-[#0DACC9]/5 border border-[#0DACC9]/15 px-4 py-3 mb-5">
+            <p className="text-xs font-semibold text-[#0DACC9] uppercase tracking-wide mb-1">Impact</p>
+            <p className="text-foreground/80 text-sm leading-relaxed">{project.impact}</p>
+          </div>
+        )}
 
         {/* Tech stack */}
         <div className="flex flex-wrap gap-1.5 mb-6">
