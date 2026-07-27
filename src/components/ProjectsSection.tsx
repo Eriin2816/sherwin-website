@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 import { ArrowUpRight, Layers, ChevronLeft, ChevronRight, X, CheckCircle2, ExternalLink } from 'lucide-react'
-import { projects, type Project } from '@/data/portfolio'
+import { projects, projectFilters, type Project } from '@/data/portfolio'
 import { Button } from '@/components/ui/button'
 import SectionBackground from '@/components/SectionBackground'
 
@@ -282,19 +282,27 @@ function ProjectCard({
 
 // ── Projects Section ──────────────────────────────────────────────────────────
 
-const CARDS_PER_PAGE = 3
+// 2 rows × 3 columns on desktop
+const CARDS_PER_PAGE = 6
 
 export default function ProjectsSection() {
   const headerRef = useRef<HTMLDivElement>(null)
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
+  const [filter, setFilter] = useState('all')
   const [page, setPage] = useState(0)
   const [activeModal, setActiveModal] = useState<Project | null>(null)
 
-  const totalPages = Math.ceil(projects.length / CARDS_PER_PAGE)
-  const visibleProjects = projects.slice(page * CARDS_PER_PAGE, page * CARDS_PER_PAGE + CARDS_PER_PAGE)
+  const filtered = filter === 'all' ? projects : projects.filter((p) => p.filters.includes(filter))
+  const totalPages = Math.max(1, Math.ceil(filtered.length / CARDS_PER_PAGE))
+  const visibleProjects = filtered.slice(page * CARDS_PER_PAGE, page * CARDS_PER_PAGE + CARDS_PER_PAGE)
 
   const prev = useCallback(() => setPage((p) => Math.max(0, p - 1)), [])
   const next = useCallback(() => setPage((p) => Math.min(totalPages - 1, p + 1)), [totalPages])
+
+  const selectFilter = useCallback((id: string) => {
+    setFilter(id)
+    setPage(0)
+  }, [])
 
   return (
     <>
@@ -309,53 +317,59 @@ export default function ProjectsSection() {
             initial={{ opacity: 0, y: 24 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
-            className="mb-12"
+            className="text-center mb-10"
           >
             <p className="text-[#0DACC9] text-xs font-semibold uppercase tracking-widest mb-4">
               Portfolio & Case Studies
             </p>
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <div>
-                <h2
-                  className="font-bold text-foreground tracking-tight leading-tight mb-4"
-                  style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
-                >
-                  Projects That Ship
-                </h2>
-                <p className="text-muted-foreground text-lg max-w-xl leading-relaxed">
-                  Real systems built for real businesses — not demos, not mockups.
-                </p>
-              </div>
-
-              {/* Pagination controls */}
-              <div className="flex items-center gap-3 shrink-0">
-                <span className="text-muted-foreground/50 text-xs tabular-nums">
-                  {page + 1} / {totalPages}
-                </span>
-                <button
-                  onClick={prev}
-                  disabled={page === 0}
-                  aria-label="Previous page"
-                  className="w-9 h-9 rounded-xl border border-white/10 bg-white/4 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-[background,color,opacity] duration-200"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <button
-                  onClick={next}
-                  disabled={page === totalPages - 1}
-                  aria-label="Next page"
-                  className="w-9 h-9 rounded-xl border border-white/10 bg-white/4 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-[background,color,opacity] duration-200"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            </div>
+            <h2
+              className="font-bold text-foreground tracking-tight leading-tight mb-4"
+              style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+            >
+              Projects That Ship
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+              Real systems built for real businesses — not demos, not mockups.
+            </p>
           </motion.div>
 
-          {/* Cards grid */}
+          {/* Category filter tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={headerInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.12 }}
+            className="flex flex-wrap items-center justify-center gap-2 mb-12"
+            role="tablist"
+            aria-label="Filter projects by category"
+          >
+            {projectFilters.map(({ id, label }) => {
+              const count = id === 'all' ? projects.length : projects.filter((p) => p.filters.includes(id)).length
+              const active = filter === id
+              return (
+                <button
+                  key={id}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => selectFilter(id)}
+                  className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold border transition-[background,color,border-color,transform] duration-200 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(214_44%_7%)] ${
+                    active
+                      ? 'bg-[#0DACC9]/18 border-[#0DACC9]/45 text-[#34D4F0] shadow-[0_4px_20px_-6px_rgba(13,172,201,0.55)]'
+                      : 'bg-white/4 border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/8 hover:border-white/20'
+                  }`}
+                >
+                  {label}
+                  <span className={`text-[11px] tabular-nums ${active ? 'text-[#34D4F0]/70' : 'text-muted-foreground/50'}`}>
+                    {count}
+                  </span>
+                </button>
+              )
+            })}
+          </motion.div>
+
+          {/* Cards grid — 3 across, 2 rows per page */}
           <AnimatePresence mode="wait">
             <motion.div
-              key={page}
+              key={`${filter}-${page}`}
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
@@ -373,21 +387,57 @@ export default function ProjectsSection() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Dot pagination */}
-          <div className="flex justify-center gap-2 mt-10">
-            {Array.from({ length: totalPages }).map((_, i) => (
+          {/* Empty state */}
+          {visibleProjects.length === 0 && (
+            <div className="premium-card rounded-2xl py-16 flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-[#0DACC9]/15 border border-[#0DACC9]/25 flex items-center justify-center">
+                <Layers size={22} className="text-[#0DACC9]" />
+              </div>
+              <p className="text-foreground font-semibold">Case studies coming soon</p>
+              <p className="text-muted-foreground text-sm max-w-sm">
+                New builds in this category are being documented. Book a call to see the work in progress.
+              </p>
+            </div>
+          )}
+
+          {/* Pagination: arrows + dots */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-10">
               <button
-                key={i}
-                onClick={() => setPage(i)}
-                aria-label={`Go to page ${i + 1}`}
-                className={`rounded-full transition-[width,background,opacity] duration-300 ${
-                  i === page
-                    ? 'w-6 h-2 bg-[#0DACC9]'
-                    : 'w-2 h-2 bg-white/20 hover:bg-white/40'
-                }`}
-              />
-            ))}
-          </div>
+                onClick={prev}
+                disabled={page === 0}
+                aria-label="Previous page"
+                className="w-9 h-9 rounded-xl border border-white/10 bg-white/4 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10 active:scale-[0.96] disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100 transition-[background,color,opacity,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <div className="flex items-center gap-2">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    aria-label={`Go to page ${i + 1}`}
+                    aria-current={i === page}
+                    className={`rounded-full transition-[width,background,opacity] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9] ${
+                      i === page
+                        ? 'w-6 h-2 bg-[#0DACC9]'
+                        : 'w-2 h-2 bg-white/20 hover:bg-white/40'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={next}
+                disabled={page === totalPages - 1}
+                aria-label="Next page"
+                className="w-9 h-9 rounded-xl border border-white/10 bg-white/4 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10 active:scale-[0.96] disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100 transition-[background,color,opacity,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
