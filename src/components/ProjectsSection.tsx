@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { motion, useInView, AnimatePresence } from 'framer-motion'
+import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { ArrowUpRight, Layers, ChevronLeft, ChevronRight, X, CheckCircle2, ExternalLink } from 'lucide-react'
 import { projects, projectFilters, type Project } from '@/data/portfolio'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,87 @@ const categoryColors: Record<string, string> = {
   'n8n': 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
   'AI': 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
   'GHL': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
+}
+
+// ── Workflow Media (single image, or auto-advancing multi-screenshot slider) ──
+
+const SLIDE_INTERVAL_MS = 5000
+
+/** Returns the ordered screenshots for a project: `images` wins, else the single `image`. */
+function slidesFor(project: Project): string[] {
+  if (project.images?.length) return project.images
+  return project.image ? [project.image] : []
+}
+
+function WorkflowMedia({ project, fit }: { project: Project; fit: 'cover' | 'contain' }) {
+  const slides = slidesFor(project)
+  const isSlider = slides.length > 1
+  const prefersReducedMotion = useReducedMotion()
+  const [index, setIndex] = useState(0)
+  const [paused, setPaused] = useState(false)
+
+  // Reduced motion pins the slider to the first screenshot.
+  const active = prefersReducedMotion ? 0 : index
+
+  useEffect(() => {
+    if (!isSlider || prefersReducedMotion || paused) return
+    const id = setInterval(
+      () => setIndex((i) => (i + 1) % slides.length),
+      SLIDE_INTERVAL_MS
+    )
+    return () => clearInterval(id)
+  }, [isSlider, prefersReducedMotion, paused, slides.length])
+
+  if (slides.length === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="relative flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-[#0DACC9]/15 border border-[#0DACC9]/25 flex items-center justify-center">
+            <Layers size={22} className="text-[#0DACC9]" />
+          </div>
+          <span className="text-muted-foreground/50 text-xs font-medium uppercase tracking-widest">
+            Preview Coming Soon
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  const imgClass =
+    fit === 'contain' ? 'w-full h-full object-contain' : 'w-full h-full object-cover object-top'
+
+  if (!isSlider) {
+    return <img src={slides[0]} alt={`${project.title} workflow`} className={imgClass} />
+  }
+
+  return (
+    <div
+      className="w-full h-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0DACC9]"
+      role="group"
+      aria-roledescription="carousel"
+      aria-label={`${project.title} workflow screenshots`}
+      tabIndex={0}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <div
+        className="flex h-full w-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
+        style={{ transform: `translateX(-${active * 100}%)` }}
+      >
+        {slides.map((src, i) => (
+          <div key={src} className="w-full h-full shrink-0">
+            <img
+              src={src}
+              alt={`${project.title} workflow, part ${i + 1} of ${slides.length}`}
+              className={imgClass}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 // ── Case Study Modal ──────────────────────────────────────────────────────────
@@ -62,26 +143,9 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
             <X size={14} />
           </button>
 
-          {/* Modal image */}
+          {/* Modal image — contain keeps dense workflow canvases readable */}
           <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
-            {project.image ? (
-              <img
-                src={project.image}
-                alt={project.title}
-                className="w-full h-full object-cover object-top"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="relative flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-[#0DACC9]/15 border border-[#0DACC9]/25 flex items-center justify-center">
-                    <Layers size={22} className="text-[#0DACC9]" />
-                  </div>
-                  <span className="text-muted-foreground/50 text-xs font-medium uppercase tracking-widest">
-                    Preview Coming Soon
-                  </span>
-                </div>
-              </div>
-            )}
+            <WorkflowMedia project={project} fit="contain" />
           </div>
 
           {/* Content */}
@@ -186,14 +250,10 @@ function ProjectCard({
       className="group relative premium-card rounded-2xl overflow-hidden flex flex-col h-full"
     >
       {/* Top image or color band */}
-      {project.image ? (
+      {slidesFor(project).length > 0 ? (
         <div className="relative overflow-hidden shrink-0" style={{ height: '168px' }}>
-          <img
-            src={project.image}
-            alt={project.title}
-            className="w-full h-full object-cover object-top"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/70 via-transparent to-transparent" />
+          <WorkflowMedia project={project} fit="cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/70 via-transparent to-transparent pointer-events-none" />
         </div>
       ) : (
         <div className="h-1 w-full bg-gradient-to-r from-[#0DACC9]/60 via-[#34D4F0]/80 to-[#0DACC9]/40 shrink-0" />
