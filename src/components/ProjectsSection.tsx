@@ -144,11 +144,10 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
             <X size={14} />
           </button>
 
-          {/* Modal hero — SaaS apps use a 4:3 frame; dense workflow canvases
-              stay fully visible in 16:9 with contain. */}
-          <div
-            className={`w-full ${project.type === 'saas' ? 'aspect-[4/3]' : 'aspect-video'} bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl`}
-          >
+          {/* Modal hero — 16:9, capped by the modal's own content width (max-w-2xl)
+              so it never approaches viewport height. SaaS apps fill the frame;
+              dense workflow canvases stay fully visible with contain. */}
+          <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
             <WorkflowMedia project={project} fit={project.type === 'saas' ? 'cover' : 'contain'} />
           </div>
 
@@ -379,77 +378,77 @@ function SaaSProjectCard({
       initial={{ opacity: 0, y: 32 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.65, delay: Math.min(index * 0.08, 0.4), ease: [0.16, 1, 0.3, 1] }}
-      className="group relative premium-card rounded-2xl overflow-hidden col-span-full flex flex-col"
+      className="group relative premium-card rounded-2xl overflow-hidden col-span-full"
     >
-      {/* 4:3 hero image — centered and width-capped so it stays proportionate on wide desktops */}
-      <div className="px-5 pt-5 md:px-7 md:pt-7">
-        <div className="relative w-full max-w-[720px] mx-auto aspect-[4/3] overflow-hidden rounded-xl border border-white/8 bg-[hsl(214_44%_7%)]">
+      {/* Horizontal split on desktop, stacked below lg. Card height is driven by
+          content only: no min-height, no viewport units, no stretch. */}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] gap-5 lg:gap-7 p-6">
+        {/* 16:9 image, self-start so it never stretches to the card height */}
+        <div className="relative w-full aspect-video self-start lg:self-center overflow-hidden rounded-xl border border-white/8 bg-[hsl(214_44%_7%)]">
           <img
             src={project.image}
             alt={`${project.title} application interface`}
             className="w-full h-full object-cover object-top"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/55 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/45 via-transparent to-transparent pointer-events-none" />
         </div>
-      </div>
 
-      <div className="p-7 md:p-9 flex flex-col">
-        <span
-          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border mb-5 w-fit ${categoryColors[project.category] ?? 'text-muted-foreground bg-white/5 border-white/10'}`}
-        >
-          <Layers size={10} />
-          {project.category}
-        </span>
+        {/* Content column */}
+        <div className="flex flex-col min-w-0">
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border mb-2.5 w-fit ${categoryColors[project.category] ?? 'text-muted-foreground bg-white/5 border-white/10'}`}
+          >
+            <Layers size={10} />
+            {project.category}
+          </span>
 
-        <h3
-          className="font-bold text-foreground leading-snug mb-1.5 tracking-tight"
-          style={{ fontSize: 'clamp(1.25rem, 2.2vw, 1.75rem)' }}
-        >
-          {project.title}
-        </h3>
-        <p className="text-[#0DACC9] text-sm md:text-base font-medium mb-4">{project.subtitle}</p>
+          <h3 className="font-bold text-foreground text-lg md:text-xl leading-snug tracking-tight mb-1">
+            {project.title}
+          </h3>
+          <p className="text-[#0DACC9] text-sm font-medium mb-2.5">{project.subtitle}</p>
 
-        <p className="text-muted-foreground text-sm md:text-[15px] leading-relaxed mb-6 max-w-3xl">
-          {project.description}
-        </p>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-3.5">
+            {project.description}
+          </p>
 
-        {project.highlights && (
-          <ul className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-2 mb-6">
-            {project.highlights.map((h, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
-                <span className="text-[#0DACC9] shrink-0 mt-0.5 font-bold">•</span>
-                {h}
-              </li>
+          {project.highlights && (
+            <ul className="space-y-1.5 mb-3.5">
+              {project.highlights.map((h, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
+                  <span className="text-[#0DACC9] shrink-0 mt-0.5 font-bold">•</span>
+                  {h}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {project.tech.map((t) => (
+              <span
+                key={t}
+                className="px-2.5 py-0.5 rounded-full text-xs border border-white/8 bg-white/3 text-muted-foreground"
+              >
+                {t}
+              </span>
             ))}
-          </ul>
-        )}
+          </div>
 
-        <div className="flex flex-wrap gap-1.5 mb-7">
-          {project.tech.map((t) => (
-            <span
-              key={t}
-              className="px-2.5 py-0.5 rounded-full text-xs border border-white/8 bg-white/3 text-muted-foreground"
+          <div className="flex flex-wrap gap-2 mt-auto pt-3.5 border-t border-white/6">
+            <button
+              onClick={() => onViewCaseStudy(project)}
+              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold border border-white/12 bg-white/4 text-foreground/75 hover:bg-white/8 hover:text-foreground hover:border-white/20 transition-[background,color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
             >
-              {t}
-            </span>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap gap-2 pt-5 border-t border-white/6">
-          <button
-            onClick={() => onViewCaseStudy(project)}
-            className="flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-semibold border border-white/12 bg-white/4 text-foreground/75 hover:bg-white/8 hover:text-foreground hover:border-white/20 transition-[background,color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
-          >
-            View Case Study
-            <ArrowUpRight size={12} />
-          </button>
-          <button
-            onClick={() => window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer')}
-            className="flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-semibold bg-[#0DACC9]/15 border border-[#0DACC9]/30 text-[#0DACC9] hover:bg-[#0DACC9]/25 hover:border-[#0DACC9]/50 transition-[background,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
-          >
-            Request Build
-            <ExternalLink size={12} />
-          </button>
+              View Case Study
+              <ArrowUpRight size={12} />
+            </button>
+            <button
+              onClick={() => window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer')}
+              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#0DACC9]/15 border border-[#0DACC9]/30 text-[#0DACC9] hover:bg-[#0DACC9]/25 hover:border-[#0DACC9]/50 transition-[background,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
+            >
+              Request Build
+              <ExternalLink size={12} />
+            </button>
+          </div>
         </div>
       </div>
 
