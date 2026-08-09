@@ -27,6 +27,15 @@ function slidesFor(project: Project): string[] {
   return project.image ? [project.image] : []
 }
 
+/**
+ * Single source of truth for how a screenshot fills its frame, so the card and
+ * the case-study hero can never disagree. Explicit `imageFit` wins; otherwise
+ * SaaS app shots fill the frame and dense workflow canvases stay fully visible.
+ */
+function fitFor(project: Project): 'cover' | 'contain' {
+  return project.imageFit ?? (project.type === 'saas' ? 'cover' : 'contain')
+}
+
 function WorkflowMedia({ project, fit }: { project: Project; fit: 'cover' | 'contain' }) {
   const slides = slidesFor(project)
   const isSlider = slides.length > 1
@@ -62,7 +71,9 @@ function WorkflowMedia({ project, fit }: { project: Project; fit: 'cover' | 'con
   }
 
   const imgClass =
-    fit === 'contain' ? 'w-full h-full object-contain' : 'w-full h-full object-cover object-top'
+    fit === 'contain'
+      ? 'w-full h-full object-contain object-center'
+      : 'w-full h-full object-cover object-top'
 
   if (!isSlider) {
     return <img src={slides[0]} alt={`${project.title} workflow`} className={imgClass} />
@@ -148,7 +159,7 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
               so it never approaches viewport height. SaaS apps fill the frame;
               dense workflow canvases stay fully visible with contain. */}
           <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
-            <WorkflowMedia project={project} fit={project.type === 'saas' ? 'cover' : 'contain'} />
+            <WorkflowMedia project={project} fit={fitFor(project)} />
           </div>
 
           {/* Content */}
@@ -384,13 +395,24 @@ function SaaSProjectCard({
           content only: no min-height, no viewport units, no stretch. */}
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] gap-5 lg:gap-7 p-6">
         {/* 16:9 image, self-start so it never stretches to the card height */}
-        <div className="relative w-full aspect-video self-start lg:self-center overflow-hidden rounded-xl border border-white/8 bg-[hsl(214_44%_7%)]">
+        <div
+          className={`relative w-full aspect-video self-start lg:self-center overflow-hidden rounded-xl border border-white/8 bg-[hsl(214_44%_7%)] ${
+            fitFor(project) === 'contain' ? 'p-2' : ''
+          }`}
+        >
           <img
             src={project.image}
             alt={`${project.title} application interface`}
-            className="w-full h-full object-cover object-top"
+            className={
+              fitFor(project) === 'contain'
+                ? 'w-full h-full object-contain object-center'
+                : 'w-full h-full object-cover object-top'
+            }
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/45 via-transparent to-transparent pointer-events-none" />
+          {/* Gradient only over edge-to-edge shots; it would tint the letterboxing. */}
+          {fitFor(project) === 'cover' && (
+            <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/45 via-transparent to-transparent pointer-events-none" />
+          )}
         </div>
 
         {/* Content column */}

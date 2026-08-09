@@ -69,6 +69,12 @@ export interface Project {
   image?: string
   /** Optional multi-screenshot workflow, shown as an auto-advancing slider. Takes precedence over `image`. */
   images?: string[]
+  /**
+   * How the screenshot fills its 16:9 frame, applied identically on the card and
+   * the case-study hero. `contain` shows the whole interface (letterboxed against
+   * the card background); `cover` fills the frame and may crop the edges.
+   */
+  imageFit?: 'cover' | 'contain'
   highlights?: string[]
   problem: string
   solution: string[]
@@ -1101,6 +1107,7 @@ export const projects: Project[] = [
     filters: ['saas'],
     type: 'saas',
     image: '/brand_assets/advertsai.jpg',
+    imageFit: 'cover',
     problem: 'Direct-response teams produce advertorials across many brands and products, but the work is scattered across documents, chat threads, and manual publishing steps. Research, copy, compliance review, and approval decisions live in separate tools, so drafts are not versioned and decisions are not auditable. A dedicated application was needed to hold the entire pipeline, enforce claim controls, and keep publishing behind review.',
     solution: [
       'Built a multi-tenant Next.js application with organizations, memberships, and invitation-based onboarding, so each brand workspace is isolated behind role-aware access.',
@@ -1143,6 +1150,7 @@ export const projects: Project[] = [
     filters: ['saas'],
     type: 'saas',
     image: '/brand_assets/serviceops.png',
+    imageFit: 'contain',
     problem: 'A field-service business ran jobs across a CRM, spreadsheets, and phone calls, so work orders, visits, estimates, and invoices never shared one source of truth. Technicians in the field lost access when connectivity dropped, and updates that should have reached the CRM were entered by hand. The operation needed a dedicated system that owned the job lifecycle and stayed reliably in sync.',
     solution: [
       'Built a multi-tenant Next.js application on Supabase Postgres, with tenants, users, invitations, and role-aware access across the operations team, technicians, and platform administrators.',
@@ -1186,6 +1194,7 @@ export const projects: Project[] = [
     filters: ['saas'],
     type: 'saas',
     image: '/brand_assets/reporting-command-center.jpeg',
+    imageFit: 'contain',
     problem: 'Reporting on CRM performance meant opening several dashboards, copying figures into spreadsheets, and rebuilding the same summary every reporting period. Advertising and web analytics lived in separate platforms again, so no single view connected spend, traffic, and closed revenue. The operations team needed a dedicated reporting application with its own access model and repeatable exports.',
     solution: [
       'Built a React and Vite front end served alongside an Express API layer that brokers all external platform calls and keeps credentials on the server.',
@@ -1228,6 +1237,7 @@ export const projects: Project[] = [
     filters: ['saas'],
     type: 'saas',
     image: '/brand_assets/estimatorpro.png',
+    imageFit: 'contain',
     problem: 'Service businesses lose prospects who want a price before they will call, while manual quoting ties up staff and produces inconsistent numbers. Publishing a fixed price list is not workable when cost depends on scope, options, and location. A hosted platform was needed so a business could configure its own pricing logic, embed an estimator, and keep every submission in one place.',
     solution: [
       'Built a TypeScript monorepo separating a Hono API, a Next.js tenant dashboard, and an embeddable estimator widget, with shared pricing and schema packages between them.',
