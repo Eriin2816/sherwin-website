@@ -61,11 +61,8 @@ function WorkflowMedia({ project, fit }: { project: Project; fit: 'cover' | 'con
     )
   }
 
-  // App screenshots anchor left-top so sidebar chrome survives the 16:9 crop.
   const imgClass =
-    fit === 'contain'
-      ? 'w-full h-full object-contain'
-      : `w-full h-full object-cover ${project.type === 'saas' ? 'object-left-top' : 'object-top'}`
+    fit === 'contain' ? 'w-full h-full object-contain' : 'w-full h-full object-cover object-top'
 
   if (!isSlider) {
     return <img src={slides[0]} alt={`${project.title} workflow`} className={imgClass} />
@@ -147,9 +144,11 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
             <X size={14} />
           </button>
 
-          {/* Modal hero — SaaS screenshots fill the 16:9 frame; dense workflow
-              canvases stay fully visible with contain. */}
-          <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
+          {/* Modal hero — SaaS apps use a 4:3 frame; dense workflow canvases
+              stay fully visible in 16:9 with contain. */}
+          <div
+            className={`w-full ${project.type === 'saas' ? 'aspect-[4/3]' : 'aspect-video'} bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl`}
+          >
             <WorkflowMedia project={project} fit={project.type === 'saas' ? 'cover' : 'contain'} />
           </div>
 
@@ -382,14 +381,16 @@ function SaaSProjectCard({
       transition={{ duration: 0.65, delay: Math.min(index * 0.08, 0.4), ease: [0.16, 1, 0.3, 1] }}
       className="group relative premium-card rounded-2xl overflow-hidden col-span-full flex flex-col"
     >
-      {/* 16:9 hero image */}
-      <div className="relative w-full aspect-video overflow-hidden bg-[hsl(214_44%_7%)]">
-        <img
-          src={project.image}
-          alt={`${project.title} application interface`}
-          className="w-full h-full object-cover object-left-top"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/80 via-[#060f18]/10 to-transparent pointer-events-none" />
+      {/* 4:3 hero image — centered and width-capped so it stays proportionate on wide desktops */}
+      <div className="px-5 pt-5 md:px-7 md:pt-7">
+        <div className="relative w-full max-w-[720px] mx-auto aspect-[4/3] overflow-hidden rounded-xl border border-white/8 bg-[hsl(214_44%_7%)]">
+          <img
+            src={project.image}
+            alt={`${project.title} application interface`}
+            className="w-full h-full object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/55 via-transparent to-transparent pointer-events-none" />
+        </div>
       </div>
 
       <div className="p-7 md:p-9 flex flex-col">
