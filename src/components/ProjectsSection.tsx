@@ -14,6 +14,7 @@ const categoryColors: Record<string, string> = {
   'n8n': 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
   'AI': 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
   'GHL': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
+  'SaaS': 'text-[#34D4F0] bg-[#0DACC9]/12 border-[#0DACC9]/30',
 }
 
 // ── Workflow Media (single image, or auto-advancing multi-screenshot slider) ──
@@ -60,8 +61,11 @@ function WorkflowMedia({ project, fit }: { project: Project; fit: 'cover' | 'con
     )
   }
 
+  // App screenshots anchor left-top so sidebar chrome survives the 16:9 crop.
   const imgClass =
-    fit === 'contain' ? 'w-full h-full object-contain' : 'w-full h-full object-cover object-top'
+    fit === 'contain'
+      ? 'w-full h-full object-contain'
+      : `w-full h-full object-cover ${project.type === 'saas' ? 'object-left-top' : 'object-top'}`
 
   if (!isSlider) {
     return <img src={slides[0]} alt={`${project.title} workflow`} className={imgClass} />
@@ -143,9 +147,10 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
             <X size={14} />
           </button>
 
-          {/* Modal image — contain keeps dense workflow canvases readable */}
+          {/* Modal hero — SaaS screenshots fill the 16:9 frame; dense workflow
+              canvases stay fully visible with contain. */}
           <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
-            <WorkflowMedia project={project} fit="contain" />
+            <WorkflowMedia project={project} fit={project.type === 'saas' ? 'cover' : 'contain'} />
           </div>
 
           {/* Content */}
@@ -182,6 +187,21 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
                 ))}
               </ul>
             </div>
+
+            {/* Key Platform Capabilities (optional) */}
+            {project.capabilities && (
+              <div className="mb-6">
+                <p className="font-semibold text-foreground text-sm mb-3">Key Platform Capabilities</p>
+                <ul className="space-y-2">
+                  {project.capabilities.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-[#0DACC9] shrink-0 mt-0.5 font-bold">•</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Outcome */}
             <div className="mb-6">
@@ -340,10 +360,112 @@ function ProjectCard({
   )
 }
 
+// ── SaaS Project Card (flagship: one per row, 16:9 hero) ──────────────────────
+
+function SaaSProjectCard({
+  project,
+  index,
+  onViewCaseStudy,
+}: {
+  project: Project
+  index: number
+  onViewCaseStudy: (p: Project) => void
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: '-60px' })
+
+  return (
+    <motion.article
+      ref={ref}
+      initial={{ opacity: 0, y: 32 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.65, delay: Math.min(index * 0.08, 0.4), ease: [0.16, 1, 0.3, 1] }}
+      className="group relative premium-card rounded-2xl overflow-hidden col-span-full flex flex-col"
+    >
+      {/* 16:9 hero image */}
+      <div className="relative w-full aspect-video overflow-hidden bg-[hsl(214_44%_7%)]">
+        <img
+          src={project.image}
+          alt={`${project.title} application interface`}
+          className="w-full h-full object-cover object-left-top"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/80 via-[#060f18]/10 to-transparent pointer-events-none" />
+      </div>
+
+      <div className="p-7 md:p-9 flex flex-col">
+        <span
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border mb-5 w-fit ${categoryColors[project.category] ?? 'text-muted-foreground bg-white/5 border-white/10'}`}
+        >
+          <Layers size={10} />
+          {project.category}
+        </span>
+
+        <h3
+          className="font-bold text-foreground leading-snug mb-1.5 tracking-tight"
+          style={{ fontSize: 'clamp(1.25rem, 2.2vw, 1.75rem)' }}
+        >
+          {project.title}
+        </h3>
+        <p className="text-[#0DACC9] text-sm md:text-base font-medium mb-4">{project.subtitle}</p>
+
+        <p className="text-muted-foreground text-sm md:text-[15px] leading-relaxed mb-6 max-w-3xl">
+          {project.description}
+        </p>
+
+        {project.highlights && (
+          <ul className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-2 mb-6">
+            {project.highlights.map((h, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
+                <span className="text-[#0DACC9] shrink-0 mt-0.5 font-bold">•</span>
+                {h}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="flex flex-wrap gap-1.5 mb-7">
+          {project.tech.map((t) => (
+            <span
+              key={t}
+              className="px-2.5 py-0.5 rounded-full text-xs border border-white/8 bg-white/3 text-muted-foreground"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-2 pt-5 border-t border-white/6">
+          <button
+            onClick={() => onViewCaseStudy(project)}
+            className="flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-semibold border border-white/12 bg-white/4 text-foreground/75 hover:bg-white/8 hover:text-foreground hover:border-white/20 transition-[background,color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
+          >
+            View Case Study
+            <ArrowUpRight size={12} />
+          </button>
+          <button
+            onClick={() => window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer')}
+            className="flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-semibold bg-[#0DACC9]/15 border border-[#0DACC9]/30 text-[#0DACC9] hover:bg-[#0DACC9]/25 hover:border-[#0DACC9]/50 transition-[background,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
+          >
+            Request Build
+            <ExternalLink size={12} />
+          </button>
+        </div>
+      </div>
+
+      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="w-7 h-7 rounded-full bg-[#0DACC9]/15 border border-[#0DACC9]/30 flex items-center justify-center">
+          <ArrowUpRight size={13} className="text-[#0DACC9]" />
+        </div>
+      </div>
+    </motion.article>
+  )
+}
+
 // ── Projects Section ──────────────────────────────────────────────────────────
 
-// 2 rows × 3 columns on desktop
+// 2 rows × 3 columns on desktop; flagship SaaS cards are full width, 2 per page.
 const CARDS_PER_PAGE = 6
+const SAAS_CARDS_PER_PAGE = 2
 
 export default function ProjectsSection() {
   const headerRef = useRef<HTMLDivElement>(null)
@@ -353,8 +475,9 @@ export default function ProjectsSection() {
   const [activeModal, setActiveModal] = useState<Project | null>(null)
 
   const filtered = filter === 'all' ? projects : projects.filter((p) => p.filters.includes(filter))
-  const totalPages = Math.max(1, Math.ceil(filtered.length / CARDS_PER_PAGE))
-  const visibleProjects = filtered.slice(page * CARDS_PER_PAGE, page * CARDS_PER_PAGE + CARDS_PER_PAGE)
+  const perPage = filter === 'saas' ? SAAS_CARDS_PER_PAGE : CARDS_PER_PAGE
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage))
+  const visibleProjects = filtered.slice(page * perPage, page * perPage + perPage)
 
   const prev = useCallback(() => setPage((p) => Math.max(0, p - 1)), [])
   const next = useCallback(() => setPage((p) => Math.min(totalPages - 1, p + 1)), [totalPages])
@@ -436,14 +559,23 @@ export default function ProjectsSection() {
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch"
             >
-              {visibleProjects.map((project, i) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  index={i}
-                  onViewCaseStudy={setActiveModal}
-                />
-              ))}
+              {visibleProjects.map((project, i) =>
+                project.type === 'saas' ? (
+                  <SaaSProjectCard
+                    key={project.id}
+                    project={project}
+                    index={i}
+                    onViewCaseStudy={setActiveModal}
+                  />
+                ) : (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    index={i}
+                    onViewCaseStudy={setActiveModal}
+                  />
+                )
+              )}
             </motion.div>
           </AnimatePresence>
 
