@@ -75,10 +75,24 @@ export interface Project {
    * the card background); `cover` fills the frame and may crop the edges.
    */
   imageFit?: 'cover' | 'contain'
+  /** Video showcase. Takes precedence over images; always framed 4:3 on card and modal. */
+  video?: ProjectVideo
   highlights?: string[]
   problem: string
   solution: string[]
   outcome: string[]
+}
+
+export interface ProjectVideo {
+  /** Compressed H.264 file under /public (see public/videos/portfolio). */
+  src: string
+  poster: string
+  /** Source aspect. Both are letterboxed into the same 4:3 frame. */
+  orientation: 'portrait' | 'landscape'
+  /** Length in seconds, shown before playback so no video bytes are fetched up front. */
+  duration: number
+  /** Screen recordings ship without an audio track, so they get no mute toggle. */
+  hasAudio: boolean
 }
 
 /** Filter tabs rendered above the portfolio grid. 'all' is the reset tab. */
@@ -88,8 +102,27 @@ export const projectFilters = [
   { id: 'ghl', label: 'GHL' },
   { id: 'make', label: 'Make.com' },
   { id: 'saas', label: 'SaaS' },
-  { id: 'ai-content', label: 'AI Content Creation' },
+  { id: 'video-editing', label: 'Video Editing' },
+  { id: 'ai-video', label: 'AI Video' },
+  { id: 'web-shopify', label: 'Web & Shopify' },
 ]
+
+const VIDEO_DIR = '/videos/portfolio'
+
+function portfolioVideo(
+  slug: string,
+  orientation: ProjectVideo['orientation'],
+  duration: number,
+  hasAudio = true
+): ProjectVideo {
+  return {
+    src: `${VIDEO_DIR}/${slug}.mp4`,
+    poster: `${VIDEO_DIR}/posters/${slug}.webp`,
+    orientation,
+    duration,
+    hasAudio,
+  }
+}
 
 export const projects: Project[] = [
   {
@@ -196,8 +229,8 @@ export const projects: Project[] = [
     ],
     impact: 'One raw video upload triggers the full production pipeline. Creator ships 3x more content with zero additional editing time.',
     tech: ['n8n', 'OpenAI', 'Google Sheets', 'Apify', 'InfiTalk', 'Seedance Pro', 'fal.ai'],
-    category: 'AI',
-    filters: ['ai-content', 'n8n'],
+    category: 'n8n',
+    filters: ['n8n'],
     image: '/brand_assets/aivideo.png',
     problem: 'A content creator was producing long-form Facebook motivational videos but had no scalable way to repurpose them into polished, podcast-style landscape clips with B-rolls, talking-head segments, and consistent branding for distribution across platforms.',
     solution: [
@@ -1261,6 +1294,484 @@ export const projects: Project[] = [
       'Applies consistent pricing rules to every quote instead of relying on manual calculation.',
       'Gives each business tenant-scoped access to its own estimators, submissions, and analytics.',
       'Keeps estimator changes safe through versioning, so historical submissions stay interpretable.',
+    ],
+  },
+
+  // ── Video Editing (CapCut) ─────────────────────────────────────────────────
+  {
+    id: 'ccd-community-dental-mission',
+    title: 'City Centre Dentistry — Community Dental Mission Story',
+    subtitle: 'Short-Form Documentary Reel',
+    description: 'A 90-second vertical story reel turning raw footage from a free dental mission in Quezon City into a trust-building piece for a Mississauga family dental clinic.',
+    highlights: [
+      'Bilingual burned-in captions (English + Tagalog testimonials)',
+      'Documentary pacing: crowd, care, patient voices, impact',
+    ],
+    impact: 'Hours of handheld mission footage became one scroll-stopping story that shows the clinic’s values, not just its services.',
+    tech: ['CapCut', 'Storytelling Edit', 'Animated Captions', 'Sound Design'],
+    category: 'Video Editing',
+    filters: ['video-editing'],
+    video: portfolioVideo('ccd-community-dental-mission', 'portrait', 94),
+    problem: 'City Centre Dentistry ran a free dental mission in Quezon City, Philippines, and came back with a large pile of unstructured handheld footage: crowds, clinic setups, patient interviews in Tagalog, and b-roll of the community. Without an edit, the story of why the clinic does this work would never reach its Mississauga audience.',
+    solution: [
+      'Reviewed and selected the strongest moments from the raw mission footage.',
+      'Structured the reel as a short documentary arc: the need, the arrival, the care, and the patients’ own words.',
+      'Added a persistent brand headline (“Trusted Family Dentistry in Mississauga”) so the clinic is identifiable from any frame.',
+      'Built word-by-word animated captions and translated the Tagalog testimonials into English subtitles.',
+      'Balanced interview audio against music so patient voices stay clear on phone speakers.',
+    ],
+    outcome: [
+      'A ready-to-post vertical reel for Instagram, Facebook, and TikTok.',
+      'Community work is now a visible trust signal for prospective patients.',
+      'Captioned for sound-off viewing, so the story lands even when muted.',
+    ],
+  },
+  {
+    id: 'ccd-brand-promo-reel',
+    title: 'City Centre Dentistry — Brand Promo Reel',
+    subtitle: 'Social Ad Creative',
+    description: 'A fast-paced vertical promo positioning the clinic around convenience, direct insurance billing, family care, modern technology, and 5-star reviews, ending on a clear call to action.',
+    highlights: [
+      'Benefit-led script with keyword-highlight captions',
+      'Review proof + storefront close with “Tap Below” CTA',
+    ],
+    impact: 'One reel that walks a new patient from “why this clinic” to “book now” in under a minute.',
+    tech: ['CapCut', 'Ad Creative Edit', 'Kinetic Captions', 'Brand Overlays'],
+    category: 'Video Editing',
+    filters: ['video-editing'],
+    video: portfolioVideo('ccd-brand-promo-reel', 'portrait', 52),
+    problem: 'The clinic needed a short paid-social creative that explains its advantages quickly. Its existing content was a mix of clinic photos and stock-like clips that didn’t communicate direct insurance billing, family-friendly care, or social proof.',
+    solution: [
+      'Cut a benefit-by-benefit sequence: convenience, insurance billed directly, whole-family care, modern technology, and the clinic space.',
+      'Highlighted the key word in each caption in brand yellow so the message reads at a glance.',
+      'Layered in a real 5-star Google review as on-screen social proof.',
+      'Kept the tooth logo watermark throughout and closed on the storefront with a “Tap Below” call to action.',
+    ],
+    outcome: [
+      'A paid-social-ready creative built around the clinic’s actual differentiators.',
+      'A clear visual path from benefit to proof to action.',
+      'A reusable edit structure for future clinic promos.',
+    ],
+  },
+  {
+    id: 'cft-metal-scrap-reel',
+    title: 'CFT Group — “Which Metal Actually Pays the Most?”',
+    subtitle: 'Educational Talking-Head Reel',
+    description: 'A walk-and-talk scrap-yard reel for a metal recycling company that turns an on-site explainer into a hooky, captioned short with a follow CTA.',
+    highlights: [
+      'Question hook pinned as a persistent headline',
+      'Jump-cut walkthrough across yard locations',
+    ],
+    impact: 'Turned an on-site explainer into repeatable educational content that positions CFT Group as the local authority on scrap value.',
+    tech: ['CapCut', 'Talking-Head Edit', 'Jump Cuts', 'Animated Captions'],
+    category: 'Video Editing',
+    filters: ['video-editing'],
+    video: portfolioVideo('cft-metal-scrap-reel', 'portrait', 54),
+    problem: 'CFT Group wanted to educate customers about which scrap materials are worth the most, but long on-site takes were hard to watch and lost viewers before the payoff.',
+    solution: [
+      'Opened on a curiosity hook, “Which metal actually pays the most?”, pinned as a headline for the whole reel.',
+      'Cut the walkthrough into tight jump cuts that move from appliances to mixed piles to copper.',
+      'Added boxed captions that emphasize the key phrase in each beat.',
+      'Ended with a clear “Follow us at CFT Group” call to action.',
+    ],
+    outcome: [
+      'A retention-friendly educational short from a single on-site recording session.',
+      'Established a repeatable format for an ongoing scripted series.',
+      'Brand name and CTA are delivered on screen, not just in the caption.',
+    ],
+  },
+
+  {
+    id: 'cft-scrapyard-myths-reel',
+    title: 'CFT Group — “3 Scrapyard Myths People Still Believe”',
+    subtitle: 'Myth-Busting Talking-Head Reel',
+    description: 'A myth-busting walk-and-talk reel for a metal recycling company, turning common scrapyard misconceptions into a fast, captioned short that ends on a follow prompt.',
+    highlights: [
+      'List-format hook pinned as a persistent headline',
+      'Animated follow-button CTA in the closing beat',
+    ],
+    impact: 'Turned customer misconceptions into a shareable format that builds trust with first-time sellers before they reach the yard.',
+    tech: ['CapCut', 'Talking-Head Edit', 'Jump Cuts', 'Animated Captions'],
+    category: 'Video Editing',
+    filters: ['video-editing'],
+    video: portfolioVideo('cft-scrapyard-myths-reel', 'portrait', 61),
+    problem: 'First-time customers arrive at CFT Group with outdated assumptions about how scrapyards work, which creates hesitation before they ever bring material in. The team needed short content that answers those doubts without feeling like a lecture.',
+    solution: [
+      'Framed the reel as a numbered list, “3 Scrapyard Myths People Still Believe”, pinned as a headline for the whole video.',
+      'Cut the on-site walkthrough into tight jump cuts that move through the yard, the piles, and the scale.',
+      'Added boxed captions that highlight the key phrase in each myth and its answer.',
+      'Closed on an animated Follow button and a “follow us” line to convert viewers into followers.',
+    ],
+    outcome: [
+      'A retention-friendly educational short from a single on-site recording.',
+      'A second episode in CFT Group’s recurring on-site series.',
+      'Clear on-screen branding and a follow CTA built into the edit.',
+    ],
+  },
+
+  // ── AI Video (Seedance) ───────────────────────────────────────────────────
+  {
+    id: 'op-veilscar',
+    title: 'VEILSCAR — Cinematic Series Opening',
+    subtitle: 'AI Cinematic Title Sequence',
+    description: 'A one-minute live-action opening sequence for an original series: neon-lit city streets, a blade-drawing lead, creature swarms, and a gathered cast before the VEILSCAR title card.',
+    highlights: [
+      'Consistent characters across a multi-shot sequence',
+      'Rooftop sword duel, creature swarm, and ensemble finale',
+    ],
+    impact: 'A full title sequence with the look and scale of a live-action series opening, made without a film crew, set, or VFX budget.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'Shot Planning', 'Prompt Direction'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('op-veilscar', 'landscape', 59),
+    problem: 'The client had a concept for an original action series and needed a high-impact opening sequence to pitch the world and its characters. Filming it traditionally would require locations, stunt choreography, costumes, and heavy VFX.',
+    solution: [
+      'Broke the opening into a shot list: rain-soaked city walk, rooftop stand-off, energy-blade reveal, close-up hero beat, creature attack, and ensemble shot.',
+      'Directed each shot in Seedance with consistent wardrobe, lighting, and character identity across cuts.',
+      'Matched a cold blue-steel color palette so every generated shot reads as one production.',
+      'Cut the shots to the music and closed on a clean VEILSCAR title card.',
+    ],
+    outcome: [
+      'A pitch-ready opening that sells the tone, cast, and scale of the series.',
+      'A reusable visual language for future episodes and promos.',
+      'Delivered at a small fraction of a traditional production budget.',
+    ],
+  },
+  {
+    id: 'action-scene',
+    title: 'Crimson Blade — Desert Action Scene',
+    subtitle: 'AI Action Sequence',
+    description: 'A high-intensity desert battle: a lone swordsman summons a glowing crimson greatsword and cuts through a swarm of mechanical creatures inside a sandstorm.',
+    highlights: [
+      'Laser-grid attack and crimson energy VFX',
+      'Hero walk-away finale in a sandstorm',
+    ],
+    impact: 'A blockbuster-style action beat, including VFX-heavy energy effects, produced entirely with AI video.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'Action Choreography', 'Prompt Direction'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('action-scene', 'landscape', 30),
+    problem: 'The client wanted a short, shareable action scene with large-scale creature combat and magical weapon effects, the kind of shot that normally needs a VFX studio.',
+    solution: [
+      'Designed the beat structure: creature reveal, sword summoning, laser-grid strike, and a calm walk-away.',
+      'Prompted consistent hero wardrobe and weapon design across every shot.',
+      'Leaned on the sandstorm atmosphere and red energy glow to unify the palette.',
+      'Assembled the shots into a tight 30-second sequence with a strong ending frame.',
+    ],
+    outcome: [
+      'A short, looping-friendly action clip built for social feeds.',
+      'Shows that AI video can deliver creature and energy VFX at cinematic scale.',
+    ],
+  },
+  {
+    id: 'gym-fight-scene',
+    title: 'Gym Showdown — Martial Arts Fight Scene',
+    subtitle: 'AI Fight Choreography',
+    description: 'A school-gym confrontation: one student is surrounded, then breaks out with fast kicks, flying papers, and a burst of light, ending in a cool, dusty stance.',
+    highlights: [
+      'Multi-angle fight choreography with continuity',
+      'Drama-to-action pacing inside 30 seconds',
+    ],
+    impact: 'A K-drama style fight sequence with believable choreography and continuity, made without actors or a location.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'Fight Choreography', 'Prompt Direction'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('gym-fight-scene', 'landscape', 30),
+    problem: 'Fight scenes are among the hardest things to generate with AI: bodies merge, faces drift, and the location changes between shots. The client wanted a clean, believable martial-arts moment for social content.',
+    solution: [
+      'Set up the tension first (the crowd closes in, then a reaction close-up) before the action starts.',
+      'Directed each strike as its own shot to keep limbs and faces stable.',
+      'Held the gym location, lighting, and wardrobe constant across every angle.',
+      'Finished on a calm hero pose to land the moment.',
+    ],
+    outcome: [
+      'A coherent fight sequence with readable action and stable characters.',
+      'A template for future short-drama and action content.',
+    ],
+  },
+  {
+    id: 'bys-blur-foundation-ad',
+    title: 'BYS Blur Powder Foundation — AI Product Commercial',
+    subtitle: 'AI Beauty Ad',
+    description: 'A polished beauty commercial: vanity-mirror application, macro skin detail, and hero packshots, closing on a branded end card for BYS Blur Powder Foundation.',
+    highlights: [
+      'Product label and packaging kept accurate in every shot',
+      'Macro texture close-ups and branded end card',
+    ],
+    impact: 'A studio-quality beauty ad created without a shoot, model booking, or product photography day.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'Product Reference', 'Ad Structure'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('bys-blur-foundation-ad', 'landscape', 30),
+    problem: 'The brand needed a premium product video for a powder foundation, but a traditional beauty shoot (model, MUA, set, lighting, macro packshots) was too slow and too expensive for a single SKU launch.',
+    solution: [
+      'Structured the ad like a classic beauty spot: product pickup, application, skin close-up, lifestyle, packshot.',
+      'Used product reference images so the BLUR compact and label render accurately.',
+      'Styled a warm vanity-mirror set for a premium, approachable feel.',
+      'Closed on a clean white end card with product name, shade, and finish.',
+    ],
+    outcome: [
+      'A launch-ready product commercial for ads and product pages.',
+      'Brand packaging stays recognizable from open to close.',
+      'Easily re-cut into 6-, 15-, and 30-second variations.',
+    ],
+  },
+  {
+    id: 'wardrobe-morph',
+    title: 'Wardrobe Morph — Character Transformation',
+    subtitle: 'AI Outfit Transition',
+    description: 'One character, one locked camera, many identities: knight armor, astronaut suit, beach shirt, chef whites, and a sharp suit, all in the same gym.',
+    highlights: [
+      'Identity held consistent across every costume swap',
+      'Locked-off framing for a seamless transition effect',
+    ],
+    impact: 'Showcases strict character consistency, the hardest problem in AI video, as an entertaining transformation format.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'Character Consistency', 'Transition Edit'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('wardrobe-morph', 'landscape', 30),
+    problem: 'The client wanted a viral transformation-style clip, which only works if the person, pose, and background stay identical while the outfit changes.',
+    solution: [
+      'Locked the camera, framing, and gym environment for every generation.',
+      'Held the character’s face and build constant while swapping costumes.',
+      'Cut the transitions on a steady rhythm so each outfit reads as a punchline.',
+    ],
+    outcome: [
+      'A seamless transformation clip that feels like a single continuous take.',
+      'Proof of reliable character consistency for campaign work.',
+    ],
+  },
+  {
+    id: 'trojan-war-game-promo',
+    title: '50v50 Trojan War — Game Event Promo',
+    subtitle: 'AI Gaming Trailer',
+    description: 'A stylized fantasy-battle teaser for a gaming community event: two armies, glowing spears, magic shields, and bold title cards announcing the next big clash.',
+    highlights: [
+      'Stylized 3D game-art look with bold motion titles',
+      'Event branding for Boogie’s Lounge vs. Princess Turf',
+    ],
+    impact: 'Gave a community event a trailer-grade announcement video in the style of the game itself.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'Stylized 3D Look', 'Motion Titles'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('trojan-war-game-promo', 'landscape', 15),
+    problem: 'A gaming community needed hype content for a 50v50 clan war. Static graphics weren’t generating excitement, and custom 3D animation was out of budget.',
+    solution: [
+      'Generated battle-scale shots in a stylized 3D game-art look.',
+      'Built the teaser around the two factions with clear hero moments.',
+      'Added bold title cards for the event name, the teams, and “The next big clash.”',
+    ],
+    outcome: [
+      'An event trailer the community could share ahead of the war.',
+      'A reusable format for future event announcements.',
+    ],
+  },
+  {
+    id: 'one-hit-fashion-campaign',
+    title: 'ONE HIT — Editorial Fashion Campaign',
+    subtitle: 'AI Fashion Film',
+    description: 'A magazine-inspired fashion film cutting between typographic spreads, studio portraits, and multiple looks, with bold editorial type layered around the model.',
+    highlights: [
+      'Editorial typography integrated into the scene',
+      'Multiple looks across one consistent model',
+    ],
+    impact: 'A high-fashion campaign aesthetic, including styling, set, and art direction, delivered without a studio shoot.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'Art Direction', 'Editorial Styling'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('one-hit-fashion-campaign', 'landscape', 15),
+    problem: 'The client wanted a bold editorial campaign film with multiple outfits and a strong typographic identity, which would normally take a studio day, a stylist, and a motion designer.',
+    solution: [
+      'Defined an art direction around oversized “ONE HIT” headline type and magazine layouts.',
+      'Generated several looks (black dress, sporty set, yellow utility, suit) on one consistent model.',
+      'Alternated full-bleed type frames with clean studio portraits for rhythm.',
+    ],
+    outcome: [
+      'A campaign film with a distinct editorial identity.',
+      'Stills and clips that can be cut down for social placements.',
+    ],
+  },
+  {
+    id: 'beach-summer-lifestyle-ad',
+    title: 'Summer Beach Day — Lifestyle Drink Ad',
+    subtitle: 'AI Lifestyle Commercial',
+    description: 'A warm, golden-hour beach commercial: family and friends sharing drinks and snacks under a canopy, built around authentic summer moments.',
+    highlights: [
+      'Natural, candid lifestyle performances',
+      'Warm golden-hour grade throughout',
+    ],
+    impact: 'Delivered the feel of a summer lifestyle shoot, with cast, location, and golden hour, as a 15-second ad.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'Lifestyle Direction', 'Color Mood'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('beach-summer-lifestyle-ad', 'landscape', 15),
+    problem: 'The brand wanted seasonal lifestyle content showing its drinks in a relatable beach setting, but coordinating a multi-person cast on location was not practical.',
+    solution: [
+      'Scripted a short lifestyle arc: arrival, gathering on the blanket, playing in the sand, and sharing drinks.',
+      'Kept the same group of characters consistent across every shot.',
+      'Held a warm, sun-washed palette for a cohesive summer mood.',
+    ],
+    outcome: [
+      'A seasonal ad ready for paid social placements.',
+      'Relatable, people-first content without a location shoot.',
+    ],
+  },
+  {
+    id: 'pink-dress-fashion-ugc',
+    title: 'Pink Bow Dress — Fashion Try-On UGC',
+    subtitle: 'AI UGC Product Video',
+    description: 'A vertical try-on video for a fashion product: detail close-ups of the bow closures and fabric, then a full-length reveal and pose sequence in a boutique closet.',
+    highlights: [
+      'Product detail macro shots (bows, stitching, fabric)',
+      'Try-on reveal styled like real creator content',
+    ],
+    impact: 'Replaced a creator-and-model shoot with UGC-style product video that shows fit, fabric, and detail.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'UGC Format', 'Product Detail'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('pink-dress-fashion-ugc', 'portrait', 25),
+    problem: 'The client needed try-on content for a fashion product. Sourcing creators, shipping samples, and waiting on revisions slowed launches.',
+    solution: [
+      'Opened on hand-held product detail shots to show construction quality.',
+      'Moved into a full-length try-on reveal and natural poses in a styled closet set.',
+      'Kept the garment’s color and details accurate from shot to shot.',
+    ],
+    outcome: [
+      'Native-feeling vertical content for TikTok, Reels, and product pages.',
+      'A faster path from new SKU to ad-ready video.',
+    ],
+  },
+  {
+    id: 'gwrm-doll-styling',
+    title: 'GWRM — “Styled by Giant Hands Like a Barbie Doll”',
+    subtitle: 'AI Trend Concept Video',
+    description: 'A playful get-ready-with-me concept where giant hands dress, style, and do skincare on a doll-like character, built for a trending short-form format.',
+    highlights: [
+      'Scale-play concept with giant styling hands',
+      'Outfit, skincare, and accessory beats with branded title',
+    ],
+    impact: 'Turned a trending format into a scroll-stopping branded video, with no set, props, or VFX compositing.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'Trend Format', 'Concept Direction'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('gwrm-doll-styling', 'portrait', 15),
+    problem: 'The client wanted to ride a viral “styled like a doll” trend. A practical version would need forced-perspective sets or heavy compositing.',
+    solution: [
+      'Designed the concept beats: outfit change, skirt swap, skincare, socks, and heels.',
+      'Generated scale-play shots with giant hands interacting naturally with the character.',
+      'Added a branded “GWRM” title treatment to anchor the series.',
+    ],
+    outcome: [
+      'A trend-native short with a distinct, repeatable format.',
+      'Series-ready branding for follow-up episodes.',
+    ],
+  },
+  {
+    id: 'gym-creator-ugc',
+    title: 'Post-Workout Creator — Fitness UGC',
+    subtitle: 'AI UGC Talking Video',
+    description: 'A realistic creator-style fitness clip: a post-workout chat on the gym floor with a towel, a shaker bottle, and natural talking-to-camera delivery.',
+    highlights: [
+      'Natural talking-to-camera performance',
+      'Product moment (shaker bottle) woven into the scene',
+    ],
+    impact: 'Produced authentic-feeling creator content for a fitness brand without hiring an influencer.',
+    tech: ['Seedance 2.0', 'Seedance 2.5', 'UGC Format', 'Lip-Sync Performance'],
+    category: 'AI Video',
+    filters: ['ai-video'],
+    video: portfolioVideo('gym-creator-ugc', 'portrait', 15),
+    problem: 'Fitness brands depend on creator UGC, but sourcing creators at volume is slow and expensive, and the results are inconsistent.',
+    solution: [
+      'Directed a believable post-workout scenario in a modern gym.',
+      'Wove the product naturally into the moment (drinking from the shaker) rather than a hard sell.',
+      'Kept the lighting and handheld framing close to real phone footage.',
+    ],
+    outcome: [
+      'UGC-style ad creative that blends into the feed.',
+      'Repeatable for testing multiple hooks and scripts.',
+    ],
+  },
+
+  // ── Web & Shopify ─────────────────────────────────────────────────────────
+  {
+    id: 'packonce-website',
+    title: 'PackOnce — Moving Container Brand Website',
+    subtitle: 'Full Marketing Website',
+    description: 'An editorial, story-driven website for a portable moving-container company, built around the “Pack once. Move smarter.” promise with a scroll narrative explaining the process step by step.',
+    highlights: [
+      'Scroll-told journey from loading to the sixth-stop delivery',
+      'Mission, FAQ, and quote CTA woven into the narrative',
+    ],
+    impact: 'Explains a new way of moving in a single scroll and funnels visitors to a quote.',
+    tech: ['Web Design', 'Responsive Build', 'Scroll Storytelling', 'Conversion Copy'],
+    category: 'Web & Shopify',
+    filters: ['web-shopify'],
+    video: portfolioVideo('packonce-website', 'landscape', 50, false),
+    problem: 'PackOnce offers a container-based alternative to conventional moving, where your belongings are loaded and unloaded multiple times. Visitors didn’t understand the model, and a generic services page couldn’t explain why it matters.',
+    solution: [
+      'Framed the story as a contrast: a conventional move “loaded, unloaded, and loaded again” versus “Pack once.”',
+      'Designed a step-by-step scroll narrative covering booking, loading at your own pace, sealing, and delivery.',
+      'Added brand story (“Fifteen years of containers, turned into a way to move”), an FAQ, and a closing quote CTA.',
+      'Built a bold typographic layout with rich photography and a strong orange accent for the CTAs.',
+    ],
+    outcome: [
+      'A premium brand site that makes the service model clear at a glance.',
+      'Every section leads to a quote request.',
+      'Responsive layout for mobile visitors researching a move.',
+    ],
+  },
+  {
+    id: 'packonce-landing-page',
+    title: 'PackOnce — Quote Landing Page',
+    subtitle: 'Lead-Gen Landing Page',
+    description: 'A focused, conversion-first landing page for paid traffic: an instant-quote form in the hero, benefit sections, a process timeline, and a “What shapes your quote?” explainer.',
+    highlights: [
+      'Instant-quote form in the hero section',
+      'Objection handling: property fit, pricing factors, fewer handoffs',
+    ],
+    impact: 'Gives ad traffic a single job: get a quote, with every objection answered on the way down.',
+    tech: ['Landing Page', 'Quote Form', 'Responsive Build', 'CRO Copy'],
+    category: 'Web & Shopify',
+    filters: ['web-shopify'],
+    video: portfolioVideo('packonce-landing-page', 'landscape', 56, false),
+    problem: 'Sending paid traffic to the main website diluted intent. Visitors needed to start a quote immediately and have their practical questions answered without navigating away.',
+    solution: [
+      'Placed a move-details quote form directly in the hero, above the fold.',
+      'Added “Fewer handoffs. More control.” and “More flexibility.” benefit blocks.',
+      'Answered the big objection, “Will the container work at my property?”, with a checklist.',
+      'Explained pricing transparently with a “What shapes your quote?” section before the final CTA.',
+    ],
+    outcome: [
+      'A dedicated ad destination with a single conversion goal.',
+      'Clear pricing and fit answers reduce hesitation before submitting.',
+      'Consistent branding with the main PackOnce website.',
+    ],
+  },
+  {
+    id: 'synful-novelties-shopify',
+    title: 'Synful Novelties — Shopify Lingerie Store',
+    subtitle: 'Shopify E-Commerce Build',
+    description: 'A luxury-leaning Shopify storefront for a lingerie brand: an editorial hero, shop-by-category tiles, new arrivals, a brand journal, testimonials, and newsletter capture.',
+    highlights: [
+      'Editorial serif branding with a burgundy accent palette',
+      'Collections, journal, testimonials, and newsletter flow',
+    ],
+    impact: 'A boutique-feeling store that sells confidence as much as product, built for browsing and repeat visits.',
+    tech: ['Shopify', 'Theme Customization', 'Collections', 'Newsletter Capture'],
+    category: 'Web & Shopify',
+    filters: ['web-shopify'],
+    video: portfolioVideo('synful-novelties-shopify', 'landscape', 52, false),
+    problem: 'Synful Novelties needed a storefront that felt premium and tasteful for an intimate-apparel category, where trust and brand tone matter as much as the catalog.',
+    solution: [
+      'Designed an editorial homepage with a bold SYNFUL wordmark and a “Empowering confidence, one lingerie piece at a time” message.',
+      'Built shop-by-category entry points for lingerie and bodysuits, plus a “Fresh Styles Just Landed” section.',
+      'Added “The Synful Journal” blog, customer testimonials, and a newsletter signup to build loyalty.',
+      'Styled collection grids and a rich footer for easy browsing on desktop and mobile.',
+    ],
+    outcome: [
+      'A cohesive, premium Shopify store aligned with the brand’s tone.',
+      'Multiple paths to products: categories, new arrivals, and content.',
+      'Built-in retention through the journal and email capture.',
     ],
   },
 ]

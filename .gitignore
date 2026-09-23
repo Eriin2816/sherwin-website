@@ -8,3 +8,10 @@ dist/
 Thumbs.db
 temporary screenshots/
 .claude/
+
+.vercel
+
+# Raw video sources (compressed copies live in public/videos/portfolio)
+brand_assets/video-assets/
+brand_assets/ai-generated-videos/
+brand_assets/website-landing-page-assets/

@@ -4,6 +4,7 @@ import { ArrowUpRight, Layers, ChevronLeft, ChevronRight, X, CheckCircle2, Exter
 import { projects, projectFilters, type Project } from '@/data/portfolio'
 import { Button } from '@/components/ui/button'
 import SectionBackground from '@/components/SectionBackground'
+import PortfolioVideo, { pauseAllPortfolioVideos } from '@/components/PortfolioVideo'
 
 const CALENDLY_URL = 'https://calendly.com/marcelo-taweng/30minutes-call'
 
@@ -15,6 +16,16 @@ const categoryColors: Record<string, string> = {
   'AI': 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
   'GHL': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
   'SaaS': 'text-[#34D4F0] bg-[#0DACC9]/12 border-[#0DACC9]/30',
+  'Video Editing': 'text-[#F4B860] bg-[#F4B860]/10 border-[#F4B860]/25',
+  'AI Video': 'text-[#C9A2FF] bg-[#C9A2FF]/10 border-[#C9A2FF]/25',
+  'Web & Shopify': 'text-[#5FE0B7] bg-[#5FE0B7]/10 border-[#5FE0B7]/25',
+}
+
+/** Video work asks for a video; everything else is a build. */
+function ctaLabelFor(project: Project) {
+  return project.filters.some((f) => f === 'video-editing' || f === 'ai-video')
+    ? 'Request Video'
+    : 'Request Build'
 }
 
 // ── Workflow Media (single image, or auto-advancing multi-screenshot slider) ──
@@ -116,6 +127,7 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
+    pauseAllPortfolioVideos()
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
@@ -155,12 +167,19 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
             <X size={14} />
           </button>
 
-          {/* Modal hero — 16:9, capped by the modal's own content width (max-w-2xl)
-              so it never approaches viewport height. SaaS apps fill the frame;
-              dense workflow canvases stay fully visible with contain. */}
-          <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
-            <WorkflowMedia project={project} fit={fitFor(project)} />
-          </div>
+          {/* Modal hero — video work uses the standard 4:3 player; everything else
+              is 16:9, capped by the modal's own content width (max-w-2xl) so it
+              never approaches viewport height. SaaS apps fill the frame; dense
+              workflow canvases stay fully visible with contain. */}
+          {project.video ? (
+            <div className="w-full border-b border-white/6 relative overflow-hidden rounded-t-2xl">
+              <PortfolioVideo video={project.video} title={project.title} />
+            </div>
+          ) : (
+            <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
+              <WorkflowMedia project={project} fit={fitFor(project)} />
+            </div>
+          )}
 
           {/* Content */}
           <div className="p-7 md:p-8">
@@ -278,8 +297,12 @@ function ProjectCard({
       transition={{ duration: 0.65, delay: Math.min(index * 0.08, 0.4), ease: [0.16, 1, 0.3, 1] }}
       className="group relative premium-card rounded-2xl overflow-hidden flex flex-col h-full"
     >
-      {/* Top image or color band */}
-      {slidesFor(project).length > 0 ? (
+      {/* Top video, image, or color band */}
+      {project.video ? (
+        <div className="relative shrink-0 border-b border-white/6">
+          <PortfolioVideo video={project.video} title={project.title} />
+        </div>
+      ) : slidesFor(project).length > 0 ? (
         <div className="relative overflow-hidden shrink-0" style={{ height: '168px' }}>
           <WorkflowMedia project={project} fit="cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/70 via-transparent to-transparent pointer-events-none" />
@@ -353,18 +376,20 @@ function ProjectCard({
             onClick={() => window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer')}
             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-[#0DACC9]/15 border border-[#0DACC9]/30 text-[#0DACC9] hover:bg-[#0DACC9]/25 hover:border-[#0DACC9]/50 transition-[background,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
           >
-            Request Build
+            {ctaLabelFor(project)}
             <ExternalLink size={12} />
           </button>
         </div>
       </div>
 
-      {/* Hover corner indicator */}
-      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <div className="w-7 h-7 rounded-full bg-[#0DACC9]/15 border border-[#0DACC9]/30 flex items-center justify-center">
-          <ArrowUpRight size={13} className="text-[#0DACC9]" />
+      {/* Hover corner indicator (video cards skip it so it can't read as a player control) */}
+      {!project.video && (
+        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="w-7 h-7 rounded-full bg-[#0DACC9]/15 border border-[#0DACC9]/30 flex items-center justify-center">
+            <ArrowUpRight size={13} className="text-[#0DACC9]" />
+          </div>
         </div>
-      </div>
+      )}
     </motion.article>
   )
 }
@@ -489,6 +514,16 @@ function SaaSProjectCard({
 const CARDS_PER_PAGE = 6
 const SAAS_CARDS_PER_PAGE = 2
 
+// The default "All" tab leads with visual work; everything else keeps data order.
+const ALL_TAB_LEAD = ['ai-video', 'video-editing']
+
+function allTabRank(project: Project) {
+  const rank = ALL_TAB_LEAD.findIndex((id) => project.filters.includes(id))
+  return rank === -1 ? ALL_TAB_LEAD.length : rank
+}
+
+const allTabProjects = [...projects].sort((a, b) => allTabRank(a) - allTabRank(b))
+
 export default function ProjectsSection() {
   const headerRef = useRef<HTMLDivElement>(null)
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
@@ -496,7 +531,7 @@ export default function ProjectsSection() {
   const [page, setPage] = useState(0)
   const [activeModal, setActiveModal] = useState<Project | null>(null)
 
-  const filtered = filter === 'all' ? projects : projects.filter((p) => p.filters.includes(filter))
+  const filtered = filter === 'all' ? allTabProjects : projects.filter((p) => p.filters.includes(filter))
   const perPage = filter === 'saas' ? SAAS_CARDS_PER_PAGE : CARDS_PER_PAGE
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage))
   const visibleProjects = filtered.slice(page * perPage, page * perPage + perPage)
