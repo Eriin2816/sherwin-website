@@ -1,8 +1,9 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { MessageCircle, Mail, ArrowRight, CalendarDays } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { LiquidButton } from '@/components/ui/liquid-glass-button'
 import SectionBackground from '@/components/SectionBackground'
+import { trackSpotlight } from '@/lib/motion'
 
 const CALENDLY_URL = 'https://calendly.com/marcelo-taweng/30minutes-call'
 
@@ -55,15 +56,16 @@ export default function ContactSection() {
               <p className="font-semibold text-foreground text-lg mb-1">30-Minute Discovery Call</p>
               <p className="text-muted-foreground text-sm">Free. No commitment. Just clarity on your build.</p>
             </div>
-            <Button
-              variant="hero"
+            <LiquidButton
               size="lg"
               className="w-full max-w-xs"
-              onClick={() => window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer')}
+              href={CALENDLY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <CalendarDays size={16} />
               Book a Call
-            </Button>
+            </LiquidButton>
           </div>
         </motion.div>
 
@@ -78,7 +80,8 @@ export default function ContactSection() {
             href="https://wa.me/639386916747"
             target="_blank"
             rel="noopener noreferrer"
-            className="premium-card rounded-2xl p-6 flex items-center justify-between group hover:border-[#25D366]/30 hover:bg-[#25D366]/3 transition-[background,border-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onPointerMove={trackSpotlight}
+            className="spotlight relative premium-card rounded-2xl p-6 flex items-center justify-between group active:scale-[0.99] hover:border-[#25D366]/30 hover:bg-[#25D366]/3 transition-[background-color,border-color,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-[#25D366]/10 flex items-center justify-center shrink-0">
@@ -97,7 +100,8 @@ export default function ContactSection() {
 
           <a
             href="mailto:marcelo.taweng@gmail.com"
-            className="premium-card rounded-2xl p-6 flex items-center justify-between group hover:border-[#0DACC9]/30 hover:bg-[#0DACC9]/3 transition-[background,border-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onPointerMove={trackSpotlight}
+            className="spotlight relative premium-card rounded-2xl p-6 flex items-center justify-between group active:scale-[0.99] hover:border-[#0DACC9]/30 hover:bg-[#0DACC9]/3 transition-[background-color,border-color,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-[#0DACC9]/10 flex items-center justify-center shrink-0">

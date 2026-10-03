@@ -11,7 +11,12 @@ interface Props {
 
 export default function SectionBackground({ variant = 'ambient', className = '' }: Props) {
   return (
-    <div className={`absolute inset-0 pointer-events-none overflow-hidden ${className}`} aria-hidden="true">
+    // Orbs fade out toward the section's top and bottom edges, so blurred glows
+    // never end in a hard clip line where one section meets the next.
+    <div
+      className={`absolute inset-0 pointer-events-none overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,#000_14%,#000_86%,transparent)] ${className}`}
+      aria-hidden="true"
+    >
 
       {/* ── variant-specific orbs ── */}
 
@@ -58,7 +63,7 @@ export default function SectionBackground({ variant = 'ambient', className = '' 
           <div className="bg-orb bg-orb-violet orb-b w-[500px] h-[400px] -bottom-16 -right-20 opacity-50" />
           <div className="bg-orb bg-orb-cyan orb-c w-[280px] h-[280px] top-1/2 right-1/3 opacity-25" />
           {/* Deep layered gradient for footer depth */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[hsla(214,44%,3%,0.15)] to-[hsla(214,44%,2%,0.4)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[hsla(214,44%,3%,0.15)] to-[hsla(214,44%,2%,0.4)] light:hidden" />
         </>
       )}
 

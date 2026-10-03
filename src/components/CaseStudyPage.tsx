@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Play, CheckCircle2, ExternalLink } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
+import { LiquidButton } from '@/components/ui/liquid-glass-button'
 const featuredVideoSrc = '/videos/featured.mp4'
 
 const TECH = ['Remotion', 'TypeScript', 'Claude Code', 'FFmpeg', 'Brand Asset Kit']
@@ -38,7 +38,7 @@ function CaseVideoPlayer() {
   }
 
   return (
-    <div className="relative premium-card rounded-2xl overflow-hidden">
+    <div className="dark-stage relative premium-card rounded-2xl overflow-hidden">
       <div className="h-8 bg-[hsl(214_44%_8%)] border-b border-white/5 flex items-center px-4 gap-2">
         <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
         <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
@@ -246,20 +246,15 @@ export default function CaseStudyPage() {
               <p className="text-muted-foreground text-sm mb-5 leading-relaxed">
                 Book a discovery call and I'll outline exactly how to build this for your ad workflow.
               </p>
-              <Button
-                variant="hero"
+              <LiquidButton
                 className="w-full"
-                onClick={() =>
-                  window.open(
-                    'https://calendly.com/marcelo-taweng/30minutes-call',
-                    '_blank',
-                    'noopener,noreferrer'
-                  )
-                }
+                href="https://calendly.com/marcelo-taweng/30minutes-call"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 Request Build
                 <ExternalLink size={14} />
-              </Button>
+              </LiquidButton>
             </motion.div>
           </div>
         </div>
@@ -279,22 +274,18 @@ export default function CaseStudyPage() {
             Tell me what you're trying to build and I'll outline the fastest path to production.
           </p>
           <div className="flex flex-wrap justify-center gap-3 relative">
-            <Button
-              variant="hero"
-              onClick={() =>
-                window.open(
-                  'https://calendly.com/marcelo-taweng/30minutes-call',
-                  '_blank',
-                  'noopener,noreferrer'
-                )
-              }
+            <LiquidButton
+              size="lg"
+              href="https://calendly.com/marcelo-taweng/30minutes-call"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Book a Discovery Call
               <ExternalLink size={14} />
-            </Button>
-            <Button variant="heroSecondary" onClick={() => navigate('/#projects')}>
+            </LiquidButton>
+            <LiquidButton variant="glass" size="lg" onClick={() => navigate('/#projects')}>
               View More Projects
-            </Button>
+            </LiquidButton>
           </div>
         </motion.div>
       </div>

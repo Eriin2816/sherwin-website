@@ -3,6 +3,7 @@ import { Linkedin, Github, Mail } from 'lucide-react'
 import { socialLinks, footerNav, contactLinks } from '@/data/portfolio'
 import logoUrl from '../../brand_assets/taweng-logo.png'
 import SectionBackground from '@/components/SectionBackground'
+import { LiquidButton } from '@/components/ui/liquid-glass-button'
 
 const FOOTER_VIDEO =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260503_104800_bc43ae09-f494-43e3-97d7-2f8c1692cfd7.mp4'
@@ -66,7 +67,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-[360px_1fr] gap-4 items-stretch mb-0">
 
           {/* ── LEFT CARD: Video background ── */}
-          <div className="relative min-h-[340px] rounded-[28px] p-8 overflow-hidden flex flex-col justify-between shadow-electric">
+          <div className="dark-stage relative min-h-[340px] rounded-[28px] p-8 overflow-hidden flex flex-col justify-between shadow-electric">
             {/* Video background */}
             <video
               src={FOOTER_VIDEO}
@@ -217,9 +218,10 @@ export default function Footer() {
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 px-3 py-2 outline-none min-w-0"
                     aria-label="Email for contact"
                   />
-                  <a
+                  <LiquidButton
+                    size="sm"
+                    className="shrink-0 px-4"
                     href={contactLinks.email}
-                    className="shrink-0 px-4 py-2 rounded-lg bg-[#0DACC9] text-white text-xs font-semibold hover:bg-[#0DACC9]/90 hover:-translate-y-0.5 transition-[background,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
                     onClick={(e) => {
                       const val = emailInputRef.current?.value
                       if (val) {
@@ -229,7 +231,7 @@ export default function Footer() {
                     }}
                   >
                     Send
-                  </a>
+                  </LiquidButton>
                 </div>
               </div>
             </div>
@@ -243,7 +245,7 @@ export default function Footer() {
         style={{ marginTop: '-24px', lineHeight: 0, zIndex: 0 }}
       >
         <p
-          className="text-center font-bold text-white/[0.028] leading-none tracking-tight overflow-hidden whitespace-nowrap px-4"
+          className="text-center font-bold text-white/[0.028] light:text-[#1A2C52]/[0.05] leading-none tracking-tight overflow-hidden whitespace-nowrap px-4"
           style={{ fontSize: 'clamp(5rem, 14vw, 11rem)' }}
           aria-hidden="true"
         >
@@ -261,7 +263,7 @@ export default function Footer() {
           href={contactLinks.calendly}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[#0DACC9]/50 hover:text-[#0DACC9] text-xs transition-colors duration-200"
+          className="text-[#0DACC9]/50 hover:text-[#0DACC9] text-xs transition-colors duration-200 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           Book a call ↗
         </a>

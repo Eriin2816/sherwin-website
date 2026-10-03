@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import plugin from 'tailwindcss/plugin'
 
 const config: Config = {
   darkMode: ['class'],
@@ -121,7 +122,15 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // The site is dark by default and toggles a `.light` class on <html>, so
+    // light-theme exceptions are written as `light:…` utilities. They skip
+    // anything inside a `.dark-stage` (hero, video and screenshot frames),
+    // which stays dark in both themes.
+    plugin(({ addVariant }) => {
+      addVariant('light', '.light &:not(.dark-stage *)')
+    }),
+  ],
 }
 
 export default config

@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Play, ArrowRight, ExternalLink } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
+import { LiquidButton } from '@/components/ui/liquid-glass-button'
 import SectionBackground from '@/components/SectionBackground'
 
 const featuredVideoSrc = '/videos/featured.mp4'
@@ -27,7 +27,7 @@ function VideoPlayer({ videoRef, playing, onPlay }: {
   onPlay: () => void
 }) {
   return (
-    <div className="relative bg-[hsl(214_44%_6%)] overflow-hidden">
+    <div className="dark-stage relative bg-[hsl(214_44%_6%)] overflow-hidden">
       {/* Browser chrome */}
       <div className="h-8 bg-[hsl(214_44%_8%)] border-b border-white/5 flex items-center px-4 gap-2 shrink-0">
         <div className="w-3 h-3 rounded-full bg-white/10" />
@@ -187,38 +187,27 @@ export default function FeaturedProject() {
 
           {/* CTA row */}
           <div className="px-7 py-5 border-t border-border/30 flex flex-wrap gap-3 items-center">
-            <Button
-              variant="hero"
-              size="sm"
-              onClick={handleWatchDemo}
-            >
+            <LiquidButton size="sm" className="px-5" onClick={handleWatchDemo}>
               <Play size={13} fill="currentColor" />
               Watch Demo
-            </Button>
+            </LiquidButton>
 
-            <Button
-              variant="heroSecondary"
-              size="sm"
-              onClick={() => navigate('/case-study')}
-            >
+            <LiquidButton variant="glass" size="sm" className="px-5" onClick={() => navigate('/case-study')}>
               View Case Study
-              <ArrowRight size={14} />
-            </Button>
+              <ArrowRight size={14} className="transition-transform duration-300 group-hover/liquid:translate-x-0.5" />
+            </LiquidButton>
 
-            <Button
+            <LiquidButton
               variant="electric"
               size="sm"
-              onClick={() =>
-                window.open(
-                  'https://calendly.com/marcelo-taweng/30minutes-call',
-                  '_blank',
-                  'noopener,noreferrer'
-                )
-              }
+              className="px-5"
+              href="https://calendly.com/marcelo-taweng/30minutes-call"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Request Build
               <ExternalLink size={12} />
-            </Button>
+            </LiquidButton>
           </div>
         </motion.div>
       </div>

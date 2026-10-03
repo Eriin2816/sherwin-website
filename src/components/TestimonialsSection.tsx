@@ -4,6 +4,7 @@ import { motion, useInView } from 'framer-motion'
 import { Quote, Play } from 'lucide-react'
 import { testimonials } from '@/data/portfolio'
 import SectionBackground from '@/components/SectionBackground'
+import { trackSpotlight } from '@/lib/motion'
 
 const testimonialVideo = '/videos/testimonial.mp4'
 
@@ -17,7 +18,8 @@ function TestimonialCard({ testimonial, index }: { testimonial: typeof testimoni
       initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="premium-card rounded-2xl p-6 relative"
+      onPointerMove={trackSpotlight}
+      className="spotlight premium-card rounded-2xl p-6 relative"
     >
       <Quote size={18} className="text-[#0DACC9]/30 mb-3" />
       <p className="text-foreground/80 text-sm leading-relaxed mb-4 italic">
@@ -44,7 +46,7 @@ function TestimonialVideoPlayer() {
   }
 
   return (
-    <div className="premium-card rounded-2xl overflow-hidden">
+    <div className="dark-stage premium-card rounded-2xl overflow-hidden">
       {/* Browser chrome bar */}
       <div className="h-8 bg-[hsl(214_44%_8%)] border-b border-white/5 flex items-center px-4 gap-2 shrink-0">
         <div className="w-2.5 h-2.5 rounded-full bg-white/10" />

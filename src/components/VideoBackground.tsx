@@ -56,7 +56,9 @@ export default function VideoBackground() {
   }, [])
 
   return (
-    <div className="absolute inset-0 overflow-hidden">
+    // Solid navy behind the film keeps the site starfield out of the hero,
+    // including while the video loads or crossfades at its loop point.
+    <div className="absolute inset-0 overflow-hidden bg-[hsl(214_44%_5%)]">
       <video
         ref={videoRef}
         src={VIDEO_URL}

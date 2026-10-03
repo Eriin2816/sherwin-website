@@ -2,8 +2,9 @@ import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import profileUrl from '../../brand_assets/profile.jpg'
 import { CheckCircle2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { LiquidButton } from '@/components/ui/liquid-glass-button'
 import SectionBackground from '@/components/SectionBackground'
+import CountUp from '@/components/motion/CountUp'
 
 const strengths = [
   'GoHighLevel account strategy & execution',
@@ -45,12 +46,16 @@ export default function AboutSection() {
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <div className="grid grid-cols-3 gap-4">
                   {[
-                    { value: '50+', label: 'Automations Built' },
-                    { value: '3+', label: 'Years Building' },
-                    { value: '100%', label: 'Remote-First' },
+                    { value: 50, suffix: '+', label: 'Automations Built' },
+                    { value: 3, suffix: '+', label: 'Years Building' },
+                    { value: 100, suffix: '%', label: 'Remote-First' },
                   ].map((stat) => (
                     <div key={stat.label} className="text-center">
-                      <div className="text-xl font-bold text-white">{stat.value}</div>
+                      <CountUp
+                        value={stat.value}
+                        suffix={stat.suffix}
+                        className="block text-xl font-bold text-white tabular-nums"
+                      />
                       <div className="text-xs text-white/60 leading-tight">{stat.label}</div>
                     </div>
                   ))}
@@ -105,9 +110,9 @@ export default function AboutSection() {
               ))}
             </ul>
 
-            <Button variant="hero" onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}>
+            <LiquidButton size="lg" onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}>
               Let's Work Together
-            </Button>
+            </LiquidButton>
           </motion.div>
         </div>
       </div>

@@ -2,9 +2,13 @@ import { useRef, useState, useEffect, useCallback } from 'react'
 import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { ArrowUpRight, Layers, ChevronLeft, ChevronRight, X, CheckCircle2, ExternalLink } from 'lucide-react'
 import { projects, projectFilters, type Project } from '@/data/portfolio'
-import { Button } from '@/components/ui/button'
+import { LiquidButton } from '@/components/ui/liquid-glass-button'
 import SectionBackground from '@/components/SectionBackground'
 import PortfolioVideo, { pauseAllPortfolioVideos } from '@/components/PortfolioVideo'
+import StackedMedia from '@/components/motion/StackedMedia'
+import SystemPlaceholder from '@/components/motion/SystemPlaceholder'
+import { cn } from '@/lib/utils'
+import { trackSpotlight } from '@/lib/motion'
 
 const CALENDLY_URL = 'https://calendly.com/marcelo-taweng/30minutes-call'
 
@@ -67,18 +71,7 @@ function WorkflowMedia({ project, fit }: { project: Project; fit: 'cover' | 'con
   }, [isSlider, prefersReducedMotion, paused, slides.length])
 
   if (slides.length === 0) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="relative flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-[#0DACC9]/15 border border-[#0DACC9]/25 flex items-center justify-center">
-            <Layers size={22} className="text-[#0DACC9]" />
-          </div>
-          <span className="text-muted-foreground/50 text-xs font-medium uppercase tracking-widest">
-            Preview Coming Soon
-          </span>
-        </div>
-      </div>
-    )
+    return <SystemPlaceholder className="w-full h-full" />
   }
 
   const imgClass =
@@ -155,14 +148,14 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 16 }}
           transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto premium-card rounded-2xl"
+          className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-foreground/10 bg-[hsl(var(--card))] shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_30px_80px_-24px_rgba(0,0,0,0.75),0_0_0_1px_rgba(13,172,201,0.06)] light:shadow-[0_30px_80px_-28px_rgba(26,44,82,0.45)]"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close button */}
+          {/* Close button — always sits over the dark media frame */}
           <button
             onClick={onClose}
             aria-label="Close"
-            className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/8 border border-white/10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/15 transition-[background,color] duration-200"
+            className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/40 border border-white/15 backdrop-blur-md flex items-center justify-center text-white/80 hover:text-white hover:bg-black/60 active:scale-[0.94] transition-[background-color,color,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34D4F0]"
           >
             <X size={14} />
           </button>
@@ -172,11 +165,11 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
               never approaches viewport height. SaaS apps fill the frame; dense
               workflow canvases stay fully visible with contain. */}
           {project.video ? (
-            <div className="w-full border-b border-white/6 relative overflow-hidden rounded-t-2xl">
+            <div className="dark-stage w-full border-b border-white/6 relative overflow-hidden rounded-t-2xl">
               <PortfolioVideo video={project.video} title={project.title} />
             </div>
           ) : (
-            <div className="w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
+            <div className="dark-stage w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
               <WorkflowMedia project={project} fit={fitFor(project)} />
             </div>
           )}
@@ -260,14 +253,16 @@ function CaseStudyModal({ project, onClose }: { project: Project; onClose: () =>
             </div>
 
             {/* CTA */}
-            <Button
-              variant="hero"
+            <LiquidButton
+              size="lg"
               className="w-full"
-              onClick={() => window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer')}
+              href={CALENDLY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Book a Call
               <ExternalLink size={14} />
-            </Button>
+            </LiquidButton>
           </div>
         </motion.div>
       </motion.div>
@@ -295,20 +290,18 @@ function ProjectCard({
       initial={{ opacity: 0, y: 32 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.65, delay: Math.min(index * 0.08, 0.4), ease: [0.16, 1, 0.3, 1] }}
-      className="group relative premium-card rounded-2xl overflow-hidden flex flex-col h-full"
+      onPointerMove={trackSpotlight}
+      className="spotlight group relative premium-card rounded-2xl overflow-hidden flex flex-col h-full"
     >
-      {/* Top video, image, or color band */}
+      {/* Top media: video player, stacked screenshot deck, or a live placeholder */}
       {project.video ? (
-        <div className="relative shrink-0 border-b border-white/6">
+        <div className="dark-stage relative shrink-0 border-b border-white/6">
           <PortfolioVideo video={project.video} title={project.title} />
         </div>
       ) : slidesFor(project).length > 0 ? (
-        <div className="relative overflow-hidden shrink-0" style={{ height: '168px' }}>
-          <WorkflowMedia project={project} fit="cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/70 via-transparent to-transparent pointer-events-none" />
-        </div>
+        <StackedMedia images={slidesFor(project)} title={project.title} className="shrink-0" />
       ) : (
-        <div className="h-1 w-full bg-gradient-to-r from-[#0DACC9]/60 via-[#34D4F0]/80 to-[#0DACC9]/40 shrink-0" />
+        <SystemPlaceholder className="h-[184px] shrink-0 border-b border-white/6" />
       )}
 
       <div className="p-7 flex flex-col flex-1">
@@ -365,31 +358,23 @@ function ProjectCard({
 
         {/* Action buttons */}
         <div className="flex gap-2 pt-4 border-t border-white/6">
-          <button
-            onClick={() => onViewCaseStudy(project)}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border border-white/12 bg-white/4 text-foreground/75 hover:bg-white/8 hover:text-foreground hover:border-white/20 transition-[background,color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
-          >
+          <LiquidButton variant="glass" size="sm" className="flex-1 px-3" onClick={() => onViewCaseStudy(project)}>
             View Case Study
             <ArrowUpRight size={12} />
-          </button>
-          <button
-            onClick={() => window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer')}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-[#0DACC9]/15 border border-[#0DACC9]/30 text-[#0DACC9] hover:bg-[#0DACC9]/25 hover:border-[#0DACC9]/50 transition-[background,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
+          </LiquidButton>
+          <LiquidButton
+            variant="electric"
+            size="sm"
+            className="flex-1 px-3"
+            href={CALENDLY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             {ctaLabelFor(project)}
             <ExternalLink size={12} />
-          </button>
+          </LiquidButton>
         </div>
       </div>
-
-      {/* Hover corner indicator (video cards skip it so it can't read as a player control) */}
-      {!project.video && (
-        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="w-7 h-7 rounded-full bg-[#0DACC9]/15 border border-[#0DACC9]/30 flex items-center justify-center">
-            <ArrowUpRight size={13} className="text-[#0DACC9]" />
-          </div>
-        </div>
-      )}
     </motion.article>
   )
 }
@@ -414,16 +399,31 @@ function SaaSProjectCard({
       initial={{ opacity: 0, y: 32 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.65, delay: Math.min(index * 0.08, 0.4), ease: [0.16, 1, 0.3, 1] }}
-      className="group relative premium-card rounded-2xl overflow-hidden col-span-full"
+      onPointerMove={trackSpotlight}
+      className="spotlight group relative premium-card rounded-2xl overflow-hidden col-span-full"
     >
       {/* Horizontal split on desktop, stacked below lg. Card height is driven by
           content only: no min-height, no viewport units, no stretch. */}
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] gap-5 lg:gap-7 p-6">
-        {/* 16:9 image, self-start so it never stretches to the card height */}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] gap-5 lg:gap-7 p-6 pt-8">
+        {/* 16:9 image on a small stack of panes that fan out on hover */}
+        <div className="relative self-start lg:self-center">
+          <span
+            aria-hidden="true"
+            className="stack-card absolute inset-0 rounded-xl border border-foreground/10 bg-[hsl(var(--card))]"
+            data-pos="2"
+          />
+          <span
+            aria-hidden="true"
+            className="stack-card absolute inset-0 rounded-xl border border-foreground/10 bg-[hsl(var(--card))]"
+            data-pos="1"
+          />
         <div
-          className={`relative w-full aspect-video self-start lg:self-center overflow-hidden rounded-xl border border-white/8 bg-[hsl(214_44%_7%)] ${
-            fitFor(project) === 'contain' ? 'p-2' : ''
-          }`}
+          className={cn(
+            'stack-card dark-stage relative w-full aspect-video overflow-hidden rounded-xl border border-white/8 bg-[hsl(214_44%_7%)]',
+            'shadow-[0_18px_40px_-20px_rgba(0,0,0,0.8)] light:shadow-[0_18px_40px_-20px_rgba(26,44,82,0.4)]',
+            fitFor(project) === 'contain' && 'p-2'
+          )}
+          data-pos="0"
         >
           <img
             src={project.image}
@@ -438,6 +438,7 @@ function SaaSProjectCard({
           {fitFor(project) === 'cover' && (
             <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/45 via-transparent to-transparent pointer-events-none" />
           )}
+        </div>
         </div>
 
         {/* Content column */}
@@ -481,27 +482,21 @@ function SaaSProjectCard({
           </div>
 
           <div className="flex flex-wrap gap-2 mt-auto pt-3.5 border-t border-white/6">
-            <button
-              onClick={() => onViewCaseStudy(project)}
-              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold border border-white/12 bg-white/4 text-foreground/75 hover:bg-white/8 hover:text-foreground hover:border-white/20 transition-[background,color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
-            >
+            <LiquidButton variant="glass" size="sm" onClick={() => onViewCaseStudy(project)}>
               View Case Study
               <ArrowUpRight size={12} />
-            </button>
-            <button
-              onClick={() => window.open(CALENDLY_URL, '_blank', 'noopener,noreferrer')}
-              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#0DACC9]/15 border border-[#0DACC9]/30 text-[#0DACC9] hover:bg-[#0DACC9]/25 hover:border-[#0DACC9]/50 transition-[background,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
+            </LiquidButton>
+            <LiquidButton
+              variant="electric"
+              size="sm"
+              href={CALENDLY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Request Build
               <ExternalLink size={12} />
-            </button>
+            </LiquidButton>
           </div>
-        </div>
-      </div>
-
-      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <div className="w-7 h-7 rounded-full bg-[#0DACC9]/15 border border-[#0DACC9]/30 flex items-center justify-center">
-          <ArrowUpRight size={13} className="text-[#0DACC9]" />
         </div>
       </div>
     </motion.article>
@@ -591,12 +586,21 @@ export default function ProjectsSection() {
                   role="tab"
                   aria-selected={active}
                   onClick={() => selectFilter(id)}
-                  className={`inline-flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold border transition-[background,color,border-color,transform] duration-200 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(214_44%_7%)] ${
+                  className={cn(
+                    'relative isolate inline-flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold border transition-[background-color,color,border-color,transform] duration-200 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--background))]',
                     active
-                      ? 'bg-[#0DACC9]/18 border-[#0DACC9]/45 text-[#34D4F0] shadow-[0_4px_20px_-6px_rgba(13,172,201,0.55)]'
+                      ? 'border-transparent text-[#34D4F0]'
                       : 'bg-white/4 border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/8 hover:border-white/20'
-                  }`}
+                  )}
                 >
+                  {/* Active pill glides between tabs */}
+                  {active && (
+                    <motion.span
+                      layoutId="project-filter-pill"
+                      transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.8 }}
+                      className="absolute inset-0 -z-10 rounded-full border border-[#0DACC9]/45 bg-[#0DACC9]/[0.16] shadow-[0_4px_20px_-6px_rgba(13,172,201,0.55)]"
+                    />
+                  )}
                   {label}
                   <span className={`text-[11px] tabular-nums ${active ? 'text-[#34D4F0]/70' : 'text-muted-foreground/50'}`}>
                     {count}

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, CalendarDays } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { LiquidButton } from '@/components/ui/liquid-glass-button'
 import VideoBackground from './VideoBackground'
 
 const fadeUp = (delay = 0) => ({
@@ -15,9 +15,11 @@ const scrollTo = (href: string) => {
 
 export default function HeroSection() {
   return (
+    // The hero is a dark stage in both themes: its film background is always
+    // navy, so its type keeps the dark tokens even when the page is light.
     <section
       id="home"
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      className="dark-stage relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
     >
       <VideoBackground />
 
@@ -61,21 +63,14 @@ export default function HeroSection() {
           {...fadeUp(0.5)}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14"
         >
-          <Button
-            variant="hero"
-            className="group"
-            onClick={() => scrollTo('#projects')}
-          >
+          <LiquidButton size="lg" onClick={() => scrollTo('#projects')}>
             View My Work
-            <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
-          </Button>
-          <Button
-            variant="heroSecondary"
-            onClick={() => scrollTo('#contact')}
-          >
+            <ArrowRight size={16} className="transition-transform duration-300 group-hover/liquid:translate-x-1" />
+          </LiquidButton>
+          <LiquidButton variant="glass" size="lg" distort onClick={() => scrollTo('#contact')}>
             <CalendarDays size={16} />
             Book a Call
-          </Button>
+          </LiquidButton>
         </motion.div>
 
         {/* Credential strip */}
@@ -100,8 +95,8 @@ export default function HeroSection() {
         </motion.div>
       </div>
 
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+      {/* Bottom fade into the page background (light or dark) */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[hsl(var(--page-bg))] to-transparent pointer-events-none" />
 
       {/* Scroll indicator */}
       <motion.div

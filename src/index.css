@@ -32,6 +32,9 @@
     --radius: 0.75rem;
     --hero-heading: 195 15% 96%;
     --hero-sub: 210 12% 72%;
+    /* The page's own background, captured at the root so it survives the
+       token overrides inside .dark-stage (used for edge fades out of media). */
+    --page-bg: var(--background);
   }
 
   .light {
@@ -58,6 +61,22 @@
     --hero-sub: 214 20% 35%;
   }
 
+  /* Media and the hero are dark stages in both themes: video, screenshots and
+     the hero film always sit on navy, so their text and chrome keep the dark
+     tokens even when the rest of the page is light. */
+  .dark-stage {
+    --background: 214 44% 5%;
+    --foreground: 195 10% 92%;
+    --card: 214 35% 8%;
+    --card-foreground: 195 10% 92%;
+    --muted: 214 30% 12%;
+    --muted-foreground: 210 15% 62%;
+    --border: 214 25% 14%;
+    --hero-heading: 195 15% 96%;
+    --hero-sub: 210 12% 72%;
+    color-scheme: dark;
+  }
+
   * {
     border-color: hsl(var(--border));
     box-sizing: border-box;
@@ -80,12 +99,15 @@
     background: rgba(13, 172, 201, 0.25);
     color: #fff;
   }
+  .light ::selection {
+    color: hsl(var(--foreground));
+  }
 
   ::-webkit-scrollbar {
     width: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: hsl(214 44% 5%);
+    background: hsl(var(--background));
   }
   ::-webkit-scrollbar-thumb {
     background: rgba(13, 172, 201, 0.3);
@@ -135,8 +157,12 @@
   }
 
   /* Premium Card */
+  /* The navy base under the glass sheen keeps the starfield behind cards
+     faint, so copy never competes with stars drifting underneath. */
   .premium-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.025) 100%);
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.025) 100%),
+      linear-gradient(hsl(214 40% 6% / 0.62), hsl(214 40% 6% / 0.62));
     border: 1px solid rgba(255,255,255,0.10);
     box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 4px 32px rgba(0,0,0,0.4);
   }
@@ -271,4 +297,405 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME REFINEMENTS
+   Components were authored dark-first with white/alpha tints and #0DACC9 text.
+   On the light theme those tints disappear and the cyan drops below readable
+   contrast, so outside dark-stage media they are remapped to navy tints and a
+   deeper cyan. Media frames opt out with .dark-stage and keep their chrome.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.light .bg-white\/3:not(.dark-stage *)  { background-color: rgb(26 44 82 / 0.035); }
+.light .bg-white\/4:not(.dark-stage *)  { background-color: rgb(26 44 82 / 0.045); }
+.light .bg-white\/5:not(.dark-stage *)  { background-color: rgb(26 44 82 / 0.05); }
+.light .bg-white\/8:not(.dark-stage *)  { background-color: rgb(26 44 82 / 0.07); }
+.light .bg-white\/10:not(.dark-stage *) { background-color: rgb(26 44 82 / 0.08); }
+.light .bg-white\/12:not(.dark-stage *),
+.light .bg-white\/15:not(.dark-stage *) { background-color: rgb(26 44 82 / 0.10); }
+.light .bg-white\/20:not(.dark-stage *) { background-color: rgb(26 44 82 / 0.16); }
+
+.light .border-white\/5:not(.dark-stage *)  { border-color: rgb(26 44 82 / 0.08); }
+.light .border-white\/6:not(.dark-stage *)  { border-color: rgb(26 44 82 / 0.09); }
+.light .border-white\/8:not(.dark-stage *)  { border-color: rgb(26 44 82 / 0.10); }
+.light .border-white\/10:not(.dark-stage *) { border-color: rgb(26 44 82 / 0.12); }
+.light .border-white\/12:not(.dark-stage *) { border-color: rgb(26 44 82 / 0.14); }
+.light .border-white\/15:not(.dark-stage *) { border-color: rgb(26 44 82 / 0.16); }
+.light .border-white\/25:not(.dark-stage *) { border-color: rgb(26 44 82 / 0.22); }
+
+.light .hover\:bg-white\/5:not(.dark-stage *):hover  { background-color: rgb(26 44 82 / 0.06); }
+.light .hover\:bg-white\/8:not(.dark-stage *):hover  { background-color: rgb(26 44 82 / 0.08); }
+.light .hover\:bg-white\/10:not(.dark-stage *):hover { background-color: rgb(26 44 82 / 0.10); }
+.light .hover\:bg-white\/15:not(.dark-stage *):hover { background-color: rgb(26 44 82 / 0.12); }
+.light .hover\:bg-white\/40:not(.dark-stage *):hover { background-color: rgb(26 44 82 / 0.30); }
+.light .hover\:border-white\/20:not(.dark-stage *):hover { border-color: rgb(26 44 82 / 0.22); }
+
+/* Brand cyan as text: deepen for contrast on the light background. */
+.light .text-\[\#0DACC9\]:not(.dark-stage *) { color: #0A7F97; }
+.light .text-\[\#34D4F0\]:not(.dark-stage *) { color: #0A86A0; }
+.light .text-\[\#0DACC9\]\/30:not(.dark-stage *) { color: rgb(10 127 151 / 0.35); }
+
+/* Category badge hues tuned for a light surface. */
+.light .text-\[\#C9A2FF\]:not(.dark-stage *) { color: #6D3FD0; }
+.light .text-\[\#F4B860\]:not(.dark-stage *) { color: #9A5A06; }
+.light .text-\[\#5FE0B7\]:not(.dark-stage *) { color: #0A7F5A; }
+.light .text-emerald-400:not(.dark-stage *) { color: #047857; }
+.light .text-violet-400:not(.dark-stage *) { color: #6D28D9; }
+
+.light .premium-card:not(.dark-stage *) {
+  background: linear-gradient(135deg, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.74) 100%);
+  border-color: rgb(26 44 82 / 0.09);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.95) inset,
+    0 1px 2px rgb(26 44 82 / 0.05),
+    0 14px 34px -16px rgb(26 44 82 / 0.22);
+}
+
+.light .liquid-glass:not(.dark-stage *) {
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 14px 34px -16px rgb(26 44 82 / 0.24);
+}
+.light .liquid-glass:not(.dark-stage *)::before {
+  background: linear-gradient(180deg, rgb(26 44 82 / 0.16) 0%, rgb(26 44 82 / 0.05) 45%, rgb(26 44 82 / 0.12) 100%);
+}
+
+.light .electric-border:not(.dark-stage *) {
+  border-color: rgba(13, 172, 201, 0.32);
+  box-shadow: 0 0 30px rgba(13,172,201,0.06) inset, 0 18px 44px -22px rgba(13,172,201,0.35);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SITE BACKGROUND GRAIN
+   A static noise tile over the starfield adds film-like depth to flat areas.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.site-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.05;
+}
+.light .site-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.17 0 0 0 0 0.32 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.045;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOTION SYSTEM
+   Every loop animates transform or opacity only. Containers marked
+   .motion-paused (off-screen) freeze their decorative loops.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.motion-paused,
+.motion-paused * {
+  animation-play-state: paused !important;
+}
+
+/* Status dot ping — a ring that expands and fades from a live indicator. */
+@keyframes status-ping {
+  0% { transform: scale(1); opacity: 0.7; }
+  80%, 100% { transform: scale(2.6); opacity: 0; }
+}
+.status-ping {
+  animation: status-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ── Spotlight cards: cursor-following glow + border light (hover only) ── */
+.spotlight {
+  isolation: isolate;
+  --spot-x: 50%;
+  --spot-y: 50%;
+}
+.spotlight::before,
+.spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.spotlight::before {
+  z-index: -1;
+  background: radial-gradient(520px circle at var(--spot-x) var(--spot-y), rgba(52, 212, 240, 0.09), transparent 42%);
+}
+.spotlight::after {
+  z-index: 1;
+  padding: 1px;
+  background: radial-gradient(300px circle at var(--spot-x) var(--spot-y), rgba(52, 212, 240, 0.6), transparent 46%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.light .spotlight::before {
+  background: radial-gradient(520px circle at var(--spot-x) var(--spot-y), rgba(13, 172, 201, 0.08), transparent 42%);
+}
+.light .spotlight::after {
+  background: radial-gradient(300px circle at var(--spot-x) var(--spot-y), rgba(13, 172, 201, 0.55), transparent 46%);
+}
+@media (hover: hover) {
+  .spotlight:hover::before,
+  .spotlight:hover::after {
+    opacity: 1;
+  }
+}
+
+/* ── Border beam: a light that travels around a card's edge ── */
+.border-beam {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.border-beam-spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(200%, 1400px);
+  aspect-ratio: 1 / 1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 292deg,
+    rgba(52, 212, 240, 0) 300deg,
+    rgba(52, 212, 240, 0.85) 342deg,
+    #7DE8F5 354deg,
+    transparent 360deg
+  );
+  animation: beam-spin 9s linear infinite;
+}
+@keyframes beam-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ── Signal bus: data packets travelling along a hairline track ── */
+.signal-track {
+  position: relative;
+  height: 1px;
+  overflow: hidden;
+  background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.12) 14%, hsl(var(--foreground) / 0.12) 86%, transparent);
+}
+/* The runner spans the track; its packet hangs just off the runner's left
+   edge, so travelling one track width plus one packet width carries it fully
+   across with no dead time at either end. */
+.signal-runner {
+  position: absolute;
+  inset: 0;
+  animation: signal-run 7s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+}
+.signal-packet {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  height: 3px;
+  width: 96px;
+  margin-top: -1.5px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, transparent, rgba(52, 212, 240, 0.85), #7DE8F5);
+  box-shadow: 0 0 14px rgba(52, 212, 240, 0.65);
+}
+.signal-packet-reverse {
+  background: linear-gradient(270deg, transparent, rgba(52, 212, 240, 0.85), #7DE8F5);
+}
+@keyframes signal-run {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(100% + 96px)); }
+}
+
+/* Wave of activity across a row of status dots (tech stack). */
+@keyframes dot-wave {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  8% { opacity: 1; transform: scale(1.35); }
+  20% { opacity: 0.3; transform: scale(1); }
+}
+.dot-wave {
+  animation: dot-wave 6s ease-in-out infinite;
+}
+
+/* ── Liquid glass buttons ── */
+.liquid-rim {
+  box-shadow:
+    0 0 8px rgba(0, 0, 0, 0.03),
+    0 2px 6px rgba(0, 0, 0, 0.08),
+    inset 3px 3px 0.5px -3.5px rgba(255, 255, 255, 0.09),
+    inset -3px -3px 0.5px -3.5px rgba(255, 255, 255, 0.85),
+    inset 1px 1px 1px -0.5px rgba(255, 255, 255, 0.6),
+    inset -1px -1px 1px -0.5px rgba(255, 255, 255, 0.6),
+    inset 0 0 6px 6px rgba(255, 255, 255, 0.12),
+    inset 0 0 2px 2px rgba(255, 255, 255, 0.06),
+    0 0 12px rgba(0, 0, 0, 0.15);
+}
+.light .liquid-rim-adaptive:not(.dark-stage *) {
+  box-shadow:
+    0 0 6px rgba(0, 0, 0, 0.03),
+    0 2px 6px rgb(26 44 82 / 0.10),
+    inset 3px 3px 0.5px -3px rgb(26 44 82 / 0.55),
+    inset -3px -3px 0.5px -3px rgb(26 44 82 / 0.5),
+    inset 1px 1px 1px -0.5px rgb(26 44 82 / 0.35),
+    inset -1px -1px 1px -0.5px rgb(26 44 82 / 0.35),
+    inset 0 0 6px 6px rgb(26 44 82 / 0.06),
+    inset 0 0 2px 2px rgb(26 44 82 / 0.04),
+    0 0 12px rgba(255, 255, 255, 0.4);
+}
+.liquid-sheen {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 42%;
+  background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.38) 50%, transparent 100%);
+  opacity: 0;
+  transform: translateX(-160%) skewX(-18deg);
+}
+@media (hover: hover) {
+  .group\/liquid:hover .liquid-sheen {
+    animation: liquid-sheen 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+@keyframes liquid-sheen {
+  0% { opacity: 1; transform: translateX(-160%) skewX(-18deg); }
+  100% { opacity: 0; transform: translateX(340%) skewX(-18deg); }
+}
+
+/* ── Service glyphs: tiny live diagrams on each service card ── */
+.glyph * {
+  transform-box: fill-box;
+}
+
+/* Pipeline: a packet moves stage to stage, each stage flashes on arrival. */
+@keyframes g-pipe-packet {
+  0% { transform: translateX(0); opacity: 0; }
+  5%, 15% { transform: translateX(0); opacity: 1; }
+  25%, 40% { transform: translateX(24px); }
+  50%, 65% { transform: translateX(48px); }
+  75%, 90% { transform: translateX(72px); opacity: 1; }
+  100% { transform: translateX(72px); opacity: 0; }
+}
+.g-pipe-packet { animation: g-pipe-packet 4.8s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+@keyframes g-stage-flash {
+  0%, 100% { opacity: 0; }
+  4% { opacity: 0.85; }
+  22% { opacity: 0; }
+}
+.g-stage-flash { animation: g-stage-flash 4.8s ease-out infinite; }
+
+/* Voice: equaliser bars breathing at different rates. */
+@keyframes g-eq {
+  0%, 100% { transform: scaleY(0.22); }
+  50% { transform: scaleY(1); }
+}
+.g-eq { transform-origin: center; animation: g-eq 1.3s ease-in-out infinite; }
+
+/* Website: page lines draw in, then the CTA pulses. */
+@keyframes g-line-draw {
+  0% { transform: scaleX(0); opacity: 1; }
+  14%, 82% { transform: scaleX(1); opacity: 1; }
+  92%, 100% { transform: scaleX(1); opacity: 0; }
+}
+.g-line-draw { transform-origin: left center; animation: g-line-draw 5s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+@keyframes g-cta {
+  0%, 30% { opacity: 0.25; transform: scale(0.9); }
+  38%, 82% { opacity: 1; transform: scale(1); }
+  92%, 100% { opacity: 0; transform: scale(1); }
+}
+.g-cta { transform-origin: center; animation: g-cta 5s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+@keyframes g-ripple {
+  0%, 40% { opacity: 0; transform: scale(0.6); }
+  44% { opacity: 0.7; transform: scale(0.8); }
+  62%, 100% { opacity: 0; transform: scale(2); }
+}
+.g-ripple { transform-origin: center; animation: g-ripple 5s ease-out infinite; }
+
+/* Automation: packets travel trigger → condition → branch. */
+@keyframes g-branch-up {
+  0% { transform: translate(0, 0); opacity: 0; }
+  6% { opacity: 1; }
+  38%, 48% { transform: translate(36px, 0); }
+  86% { transform: translate(72px, -11px); opacity: 1; }
+  96%, 100% { transform: translate(72px, -11px); opacity: 0; }
+}
+@keyframes g-branch-down {
+  0% { transform: translate(0, 0); opacity: 0; }
+  6% { opacity: 1; }
+  38%, 48% { transform: translate(36px, 0); }
+  86% { transform: translate(72px, 11px); opacity: 1; }
+  96%, 100% { transform: translate(72px, 11px); opacity: 0; }
+}
+.g-branch-up { animation: g-branch-up 4.4s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+.g-branch-down { animation: g-branch-down 4.4s cubic-bezier(0.65, 0, 0.35, 1) infinite; animation-delay: 2.2s; }
+@keyframes g-node-blink {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+.g-node-blink { animation: g-node-blink 2.2s ease-in-out infinite; }
+
+/* Dashboard: bars rebalance between two heights. */
+@keyframes g-bar {
+  0%, 100% { transform: scaleY(var(--from, 0.4)); }
+  50% { transform: scaleY(var(--to, 0.9)); }
+}
+.g-bar { transform-origin: bottom; animation: g-bar 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+
+/* Growth: a marker climbs the trend line and pings at the peak. */
+@keyframes g-climb {
+  0% { transform: translate(0, 0); opacity: 0; }
+  6% { opacity: 1; }
+  22% { transform: translate(18px, -6px); }
+  40% { transform: translate(34px, -4px); }
+  60% { transform: translate(52px, -16px); }
+  78% { transform: translate(68px, -14px); }
+  92%, 100% { transform: translate(84px, -28px); opacity: 1; }
+}
+.g-climb { animation: g-climb 4.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+@keyframes g-peak-ping {
+  0%, 88% { opacity: 0; transform: scale(1); }
+  91% { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 0; transform: scale(3.2); }
+}
+.g-peak-ping { transform-origin: center; animation: g-peak-ping 4.6s ease-out infinite; }
+
+/* ── Stacked media: screenshot windows layered like a deck ── */
+.stack-card {
+  transition:
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: 50% 0%;
+  will-change: transform;
+}
+.stack-card[data-pos='0'] { transform: translateY(0) scale(1); opacity: 1; z-index: 3; }
+.stack-card[data-pos='1'] { transform: translateY(-12px) scale(0.94); opacity: 0.7; z-index: 2; }
+.stack-card[data-pos='2'] { transform: translateY(-24px) scale(0.88); opacity: 0.4; z-index: 1; }
+@media (hover: hover) {
+  .group:hover .stack-card[data-pos='0'] { transform: translateY(-4px) scale(1.01); }
+  .group:hover .stack-card[data-pos='1'] { transform: translateY(-19px) scale(0.95); opacity: 0.8; }
+  .group:hover .stack-card[data-pos='2'] { transform: translateY(-34px) scale(0.9); opacity: 0.5; }
+}
+
+/* Toast that slides in and out of a live diagram. */
+@keyframes flow-toast {
+  0%, 6% { opacity: 0; transform: translateY(8px) scale(0.96); }
+  12%, 58% { opacity: 1; transform: translateY(0) scale(1); }
+  66%, 100% { opacity: 0; transform: translateY(-6px) scale(0.98); }
+}
+.flow-toast { animation: flow-toast 7.2s cubic-bezier(0.16, 1, 0.3, 1) infinite; animation-delay: 3.2s; opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .status-ping,
+  .border-beam-spinner,
+  .signal-runner,
+  .dot-wave,
+  .glyph *,
+  .flow-toast {
+    animation: none !important;
+  }
+  .flow-toast { opacity: 1; }
+  .border-beam-spinner { transform: translate(-50%, -50%) rotate(300deg); }
+  .stack-card { transition: none; }
 }
