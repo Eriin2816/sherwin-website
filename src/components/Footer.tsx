@@ -1,8 +1,9 @@
-import { useRef } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Linkedin, Github, Mail } from 'lucide-react'
 import { socialLinks, footerNav, contactLinks } from '@/data/portfolio'
 import logoUrl from '../../brand_assets/taweng-logo.png'
 import SectionBackground from '@/components/SectionBackground'
+import { cn } from '@/lib/utils'
 import { LiquidButton } from '@/components/ui/liquid-glass-button'
 
 const FOOTER_VIDEO =
@@ -41,6 +42,39 @@ function FacebookIcon() {
 export default function Footer() {
   const year = new Date().getFullYear()
   const emailInputRef = useRef<HTMLInputElement>(null)
+  const sendRef = useRef<HTMLSpanElement>(null)
+  const [emailError, setEmailError] = useState('')
+
+  const sendEmail = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const value = emailInputRef.current?.value.trim() ?? ''
+    const problem = !value
+      ? 'Enter your email address first.'
+      : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)
+        ? 'Add the full address, like name@company.com.'
+        : ''
+    if (problem) {
+      setEmailError(problem)
+      emailInputRef.current?.focus()
+      // A short shake on the button (transform only), skipped for reduced motion.
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        sendRef.current?.animate(
+          [
+            { transform: 'translateX(0)' },
+            { transform: 'translateX(-4px)' },
+            { transform: 'translateX(4px)' },
+            { transform: 'translateX(-4px)' },
+            { transform: 'translateX(4px)' },
+            { transform: 'translateX(0)' },
+          ],
+          { duration: 360, easing: 'ease-out' }
+        )
+      }
+      return
+    }
+    setEmailError('')
+    window.location.href = `mailto:marcelo.taweng@gmail.com?subject=Portfolio Inquiry&body=Email: ${value}`
+  }
 
   const scrollTo = (href: string) => {
     if (href.startsWith('/#')) {
@@ -207,31 +241,41 @@ export default function Footer() {
                   </p>
                 </div>
 
-                {/* Mini CTA */}
-                <div
-                  className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/4 p-1.5 shadow-sm w-full md:w-auto max-w-[280px]"
-                >
-                  <input
-                    ref={emailInputRef}
-                    type="email"
-                    placeholder="Enter email address"
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 px-3 py-2 outline-none min-w-0"
-                    aria-label="Email for contact"
-                  />
-                  <LiquidButton
-                    size="sm"
-                    className="shrink-0 px-4"
-                    href={contactLinks.email}
-                    onClick={(e) => {
-                      const val = emailInputRef.current?.value
-                      if (val) {
-                        window.location.href = `mailto:marcelo.taweng@gmail.com?subject=Portfolio Inquiry&body=Email: ${val}`
-                        e.preventDefault()
-                      }
-                    }}
+                {/* Mini CTA: the field answers back on an incomplete address */}
+                <div className="w-full md:w-auto max-w-[280px]">
+                  <form
+                    noValidate
+                    onSubmit={sendEmail}
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-xl border bg-white/4 p-1.5 shadow-sm transition-[border-color] duration-200',
+                      emailError ? 'border-[#F87171]/50' : 'border-white/10 focus-within:border-[#0DACC9]/40'
+                    )}
                   >
-                    Send
-                  </LiquidButton>
+                    <input
+                      ref={emailInputRef}
+                      id="footer-email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="Enter email address"
+                      onChange={() => emailError && setEmailError('')}
+                      aria-invalid={emailError ? true : undefined}
+                      aria-describedby="footer-email-msg"
+                      className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 px-3 py-2 outline-none min-w-0"
+                      aria-label="Email for contact"
+                    />
+                    <span ref={sendRef} className="shrink-0">
+                      <LiquidButton type="submit" size="sm" className="px-4">
+                        Send
+                      </LiquidButton>
+                    </span>
+                  </form>
+                  <p
+                    id="footer-email-msg"
+                    aria-live="polite"
+                    className="mt-1.5 min-h-[1.25rem] px-1 text-xs text-[#F87171] light:text-[#C0392B]"
+                  >
+                    {emailError}
+                  </p>
                 </div>
               </div>
             </div>

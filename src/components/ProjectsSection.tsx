@@ -1,513 +1,242 @@
-import { useRef, useState, useEffect, useCallback } from 'react'
-import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { ArrowUpRight, Layers, ChevronLeft, ChevronRight, X, CheckCircle2, ExternalLink } from 'lucide-react'
+import { useRef, useState, useCallback, useMemo } from 'react'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
+import { ArrowUpRight, ChevronLeft, ChevronRight, ExternalLink, Images, Layers } from 'lucide-react'
 import { projects, projectFilters, type Project } from '@/data/portfolio'
 import { LiquidButton } from '@/components/ui/liquid-glass-button'
 import SectionBackground from '@/components/SectionBackground'
-import PortfolioVideo, { pauseAllPortfolioVideos } from '@/components/PortfolioVideo'
-import StackedMedia from '@/components/motion/StackedMedia'
+import PortfolioVideo from '@/components/PortfolioVideo'
 import SystemPlaceholder from '@/components/motion/SystemPlaceholder'
+import CaseStudySheet from '@/components/projects/CaseStudySheet'
+import { CALENDLY_URL, CategoryBadge, ctaLabelFor, fitFor, slidesFor } from '@/components/projects/shared'
 import { cn } from '@/lib/utils'
 import { trackSpotlight } from '@/lib/motion'
 
-const CALENDLY_URL = 'https://calendly.com/marcelo-taweng/30minutes-call'
+type OpenCaseStudy = (project: Project) => void
 
-const categoryColors: Record<string, string> = {
-  Automation: 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
-  GoHighLevel: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
-  'Web Dev': 'text-violet-400 bg-violet-400/10 border-violet-400/20',
-  'n8n': 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
-  'AI': 'text-[#0DACC9] bg-[#0DACC9]/10 border-[#0DACC9]/20',
-  'GHL': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
-  'SaaS': 'text-[#34D4F0] bg-[#0DACC9]/12 border-[#0DACC9]/30',
-  'Video Editing': 'text-[#F4B860] bg-[#F4B860]/10 border-[#F4B860]/25',
-  'AI Video': 'text-[#C9A2FF] bg-[#C9A2FF]/10 border-[#C9A2FF]/25',
-  'Web & Shopify': 'text-[#5FE0B7] bg-[#5FE0B7]/10 border-[#5FE0B7]/25',
-}
-
-/** Video work asks for a video; everything else is a build. */
-function ctaLabelFor(project: Project) {
-  return project.filters.some((f) => f === 'video-editing' || f === 'ai-video')
-    ? 'Request Video'
-    : 'Request Build'
-}
-
-// ── Workflow Media (single image, or auto-advancing multi-screenshot slider) ──
-
-const SLIDE_INTERVAL_MS = 5000
-
-/** Returns the ordered screenshots for a project: `images` wins, else the single `image`. */
-function slidesFor(project: Project): string[] {
-  if (project.images?.length) return project.images
-  return project.image ? [project.image] : []
-}
+// ── Card media: the work inset in a clean frame ───────────────────────────────
 
 /**
- * Single source of truth for how a screenshot fills its frame, so the card and
- * the case-study hero can never disagree. Explicit `imageFit` wins; otherwise
- * SaaS app shots fill the frame and dense workflow canvases stay fully visible.
+ * The picture sits inset in its card with matching corners and a hairline drawn over it. Screenshots
+ * are the deeper layer: they drift inside the frame while the card crosses the screen and zoom on hover
+ * (both in index.css: .proj-shot). Video keeps the standard 4:3 player.
  */
-function fitFor(project: Project): 'cover' | 'contain' {
-  return project.imageFit ?? (project.type === 'saas' ? 'cover' : 'contain')
-}
-
-function WorkflowMedia({ project, fit }: { project: Project; fit: 'cover' | 'contain' }) {
-  const slides = slidesFor(project)
-  const isSlider = slides.length > 1
-  const prefersReducedMotion = useReducedMotion()
-  const [index, setIndex] = useState(0)
-  const [paused, setPaused] = useState(false)
-
-  // Reduced motion pins the slider to the first screenshot.
-  const active = prefersReducedMotion ? 0 : index
-
-  useEffect(() => {
-    if (!isSlider || prefersReducedMotion || paused) return
-    const id = setInterval(
-      () => setIndex((i) => (i + 1) % slides.length),
-      SLIDE_INTERVAL_MS
+function CardMedia({ project, lead, onOpen }: { project: Project; lead: boolean; onOpen: OpenCaseStudy }) {
+  if (project.video) {
+    return (
+      <div className={cn('dark-stage proj-frame shrink-0', lead && 'lg:self-center')}>
+        <PortfolioVideo video={project.video} title={project.title} />
+      </div>
     )
-    return () => clearInterval(id)
-  }, [isSlider, prefersReducedMotion, paused, slides.length])
-
-  if (slides.length === 0) {
-    return <SystemPlaceholder className="w-full h-full" />
   }
 
-  const imgClass =
-    fit === 'contain'
-      ? 'w-full h-full object-contain object-center'
-      : 'w-full h-full object-cover object-top'
+  const slides = slidesFor(project)
+  const frame = cn(
+    'dark-stage proj-frame relative block w-full shrink-0 bg-[hsl(214_44%_7%)] aspect-[16/10]',
+    lead && 'aspect-video lg:aspect-auto lg:h-full lg:min-h-[340px]'
+  )
 
-  if (!isSlider) {
-    return <img src={slides[0]} alt={`${project.title} workflow`} className={imgClass} />
+  if (slides.length === 0) {
+    return (
+      <div className={frame}>
+        <SystemPlaceholder className="absolute inset-0" />
+      </div>
+    )
   }
 
   return (
-    <div
-      className="w-full h-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0DACC9]"
-      role="group"
-      aria-roledescription="carousel"
-      aria-label={`${project.title} workflow screenshots`}
-      tabIndex={0}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+    <button
+      type="button"
+      onClick={() => onOpen(project)}
+      aria-label={`Open the ${project.title} case study`}
+      className={cn(frame, 'cursor-zoom-in light:bg-[#E9EFF5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#34D4F0]')}
     >
-      <div
-        className="flex h-full w-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
-        style={{ transform: `translateX(-${active * 100}%)` }}
+      <img src={slides[0]} alt="" loading="lazy" decoding="async" className="proj-shot shot-soft" />
+      {slides.length > 1 && (
+        <span className="absolute left-3 top-3 z-[3] inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/45 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-white/85 backdrop-blur-md">
+          <Images size={11} className="text-[#34D4F0]" />
+          {slides.length} screens
+        </span>
+      )}
+    </button>
+  )
+}
+
+/** The lift-on-hover shadow, faded in with opacity so only opacity animates. */
+function FloatShadow() {
+  return <span aria-hidden="true" className="proj-float" />
+}
+
+function CardActions({ project, onOpen, className }: { project: Project; onOpen: OpenCaseStudy; className?: string }) {
+  return (
+    <div className={cn('flex gap-2 border-t border-white/6 pt-4', className)}>
+      <LiquidButton variant="glass" size="sm" className="flex-1 px-3" onClick={() => onOpen(project)}>
+        View Case Study
+        <ArrowUpRight size={12} className="transition-transform duration-[440ms] ease-[var(--ease-spring)] group-hover/liquid:translate-x-0.5 group-hover/liquid:-translate-y-0.5" />
+      </LiquidButton>
+      <LiquidButton
+        variant="electric"
+        size="sm"
+        className="flex-1 px-3"
+        href={CALENDLY_URL}
+        target="_blank"
+        rel="noopener noreferrer"
       >
-        {slides.map((src, i) => (
-          <div key={src} className="w-full h-full shrink-0">
-            <img
-              src={src}
-              alt={`${project.title} workflow, part ${i + 1} of ${slides.length}`}
-              className={imgClass}
-            />
-          </div>
-        ))}
-      </div>
+        {ctaLabelFor(project)}
+        <ExternalLink size={12} />
+      </LiquidButton>
     </div>
   )
 }
 
-// ── Case Study Modal ──────────────────────────────────────────────────────────
+// ── Project Card (the first card on a page leads as a featured row) ──────────
 
-function CaseStudyModal({ project, onClose }: { project: Project; onClose: () => void }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', onKey)
-    document.body.style.overflow = 'hidden'
-    pauseAllPortfolioVideos()
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
-    }
-  }, [onClose])
-
+function ProjectCard({ project, lead, onOpen }: { project: Project; lead: boolean; onOpen: OpenCaseStudy }) {
   return (
-    <AnimatePresence>
-      <motion.div
-        key="overlay"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        className="fixed inset-0 z-[999] flex items-center justify-center p-4 md:p-8"
-        onClick={onClose}
-      >
-        {/* Backdrop */}
-        <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
-
-        {/* Modal panel */}
-        <motion.div
-          key="panel"
-          initial={{ opacity: 0, scale: 0.96, y: 16 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 16 }}
-          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-foreground/10 bg-[hsl(var(--card))] shadow-[0_1px_0_rgba(255,255,255,0.06)_inset,0_30px_80px_-24px_rgba(0,0,0,0.75),0_0_0_1px_rgba(13,172,201,0.06)] light:shadow-[0_30px_80px_-28px_rgba(26,44,82,0.45)]"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Close button — always sits over the dark media frame */}
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/40 border border-white/15 backdrop-blur-md flex items-center justify-center text-white/80 hover:text-white hover:bg-black/60 active:scale-[0.94] transition-[background-color,color,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#34D4F0]"
-          >
-            <X size={14} />
-          </button>
-
-          {/* Modal hero — video work uses the standard 4:3 player; everything else
-              is 16:9, capped by the modal's own content width (max-w-2xl) so it
-              never approaches viewport height. SaaS apps fill the frame; dense
-              workflow canvases stay fully visible with contain. */}
-          {project.video ? (
-            <div className="dark-stage w-full border-b border-white/6 relative overflow-hidden rounded-t-2xl">
-              <PortfolioVideo video={project.video} title={project.title} />
-            </div>
-          ) : (
-            <div className="dark-stage w-full aspect-video bg-[hsl(214_44%_7%)] border-b border-white/6 relative overflow-hidden rounded-t-2xl">
-              <WorkflowMedia project={project} fit={fitFor(project)} />
-            </div>
-          )}
-
-          {/* Content */}
-          <div className="p-7 md:p-8">
-            {/* Title + badge */}
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${categoryColors[project.category] ?? 'text-muted-foreground bg-white/5 border-white/10'}`}
-              >
-                <Layers size={9} />
-                {project.category}
-              </span>
-            </div>
-            <h2 className="font-bold text-foreground text-xl leading-snug mb-1">
-              {project.title}
-            </h2>
-            <p className="text-[#0DACC9] text-sm font-medium mb-7">{project.subtitle}</p>
-
-            {/* Problem */}
-            <div className="mb-6">
-              <p className="font-semibold text-foreground text-sm mb-2">Problem</p>
-              <p className="text-muted-foreground text-sm leading-relaxed">{project.problem}</p>
-            </div>
-
-            {/* Solution */}
-            <div className="mb-6">
-              <p className="font-semibold text-foreground text-sm mb-3">Solution</p>
-              <ul className="space-y-2">
-                {project.solution.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground leading-relaxed">
-                    <CheckCircle2 size={14} className="text-[#0DACC9] shrink-0 mt-0.5" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Key Platform Capabilities (optional) */}
-            {project.capabilities && (
-              <div className="mb-6">
-                <p className="font-semibold text-foreground text-sm mb-3">Key Platform Capabilities</p>
-                <ul className="space-y-2">
-                  {project.capabilities.map((item, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-[#0DACC9] shrink-0 mt-0.5 font-bold">•</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Outcome */}
-            <div className="mb-6">
-              <p className="font-semibold text-foreground text-sm mb-3">Outcome</p>
-              <ul className="space-y-2">
-                {project.outcome.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground leading-relaxed">
-                    <span className="text-[#34D4F0] shrink-0 mt-0.5 font-bold text-xs">✓</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Tech stack */}
-            <div className="mb-8">
-              <p className="font-semibold text-foreground text-sm mb-3">Technology Stack</p>
-              <div className="flex flex-wrap gap-2">
-                {project.tech.map((t) => (
-                  <span
-                    key={t}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#0DACC9]/10 border border-[#0DACC9]/25 text-[#0DACC9]"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* CTA */}
-            <LiquidButton
-              size="lg"
-              className="w-full"
-              href={CALENDLY_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Book a Call
-              <ExternalLink size={14} />
-            </LiquidButton>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  )
-}
-
-// ── Project Card ──────────────────────────────────────────────────────────────
-
-function ProjectCard({
-  project,
-  index,
-  onViewCaseStudy,
-}: {
-  project: Project
-  index: number
-  onViewCaseStudy: (p: Project) => void
-}) {
-  const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
-
-  return (
-    <motion.article
-      ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.65, delay: Math.min(index * 0.08, 0.4), ease: [0.16, 1, 0.3, 1] }}
+    <article
       onPointerMove={trackSpotlight}
-      className="spotlight group relative premium-card rounded-2xl overflow-hidden flex flex-col h-full"
-    >
-      {/* Top media: video player, stacked screenshot deck, or a live placeholder */}
-      {project.video ? (
-        <div className="dark-stage relative shrink-0 border-b border-white/6">
-          <PortfolioVideo video={project.video} title={project.title} />
-        </div>
-      ) : slidesFor(project).length > 0 ? (
-        <StackedMedia images={slidesFor(project)} title={project.title} className="shrink-0" />
-      ) : (
-        <SystemPlaceholder className="h-[184px] shrink-0 border-b border-white/6" />
+      className={cn(
+        'proj-card spotlight premium-card group relative flex h-full flex-col rounded-[22px] p-2',
+        lead && 'lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-stretch'
       )}
+    >
+      <FloatShadow />
+      <CardMedia project={project} lead={lead} onOpen={onOpen} />
 
-      <div className="p-7 flex flex-col flex-1">
-        {/* Category badge */}
-        <span
-          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border mb-5 w-fit ${categoryColors[project.category] ?? 'text-muted-foreground bg-white/5 border-white/10'}`}
-        >
-          <Layers size={10} />
-          {project.category}
-        </span>
+      <div className={cn('relative z-[1] flex flex-1 flex-col px-5 pb-5 pt-6', lead && 'lg:px-8 lg:py-7')}>
+        <CategoryBadge category={project.category} className="mb-4" />
 
-        {/* Title & subtitle */}
-        <h3 className="font-bold text-foreground text-lg leading-snug mb-1">
+        <h3 className={cn('mb-1 font-bold leading-snug tracking-[-0.015em] text-foreground', lead ? 'text-xl md:text-[1.7rem] md:leading-tight' : 'text-lg')}>
           {project.title}
         </h3>
-        <p className="text-[#0DACC9] text-sm font-medium mb-4">{project.subtitle}</p>
+        <p className="mb-4 text-sm font-medium text-[#0DACC9]">{project.subtitle}</p>
 
-        {/* Description */}
-        <p className="text-muted-foreground text-sm leading-relaxed mb-5">
-          {project.description}
-        </p>
+        <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
 
-        {/* Highlights or Impact callout */}
         {project.highlights ? (
-          <ul className="space-y-2 mb-5">
+          <ul className="mb-5 space-y-2">
             {project.highlights.map((h, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
-                <span className="text-[#0DACC9] shrink-0 mt-0.5 font-bold">•</span>
+              <li key={i} className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                <span className="mt-0.5 shrink-0 font-bold text-[#0DACC9]">•</span>
                 {h}
               </li>
             ))}
           </ul>
         ) : (
-          <div className="rounded-xl bg-[#0DACC9]/5 border border-[#0DACC9]/15 px-4 py-3 mb-5">
-            <p className="text-xs font-semibold text-[#0DACC9] uppercase tracking-wide mb-1">Impact</p>
-            <p className="text-foreground/80 text-sm leading-relaxed">{project.impact}</p>
+          <div className="mb-5 rounded-xl border border-[#0DACC9]/15 bg-[#0DACC9]/5 px-4 py-3">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#0DACC9]">Impact</p>
+            <p className="text-sm leading-relaxed text-foreground/80">{project.impact}</p>
           </div>
         )}
 
-        {/* Tech stack */}
-        <div className="flex flex-wrap gap-1.5 mb-6">
+        <div className="mb-6 flex flex-wrap gap-1.5">
           {project.tech.map((t) => (
-            <span
-              key={t}
-              className="px-2.5 py-0.5 rounded-full text-xs border border-white/8 bg-white/3 text-muted-foreground"
-            >
+            <span key={t} className="rounded-full border border-white/8 bg-white/3 px-2.5 py-0.5 text-xs text-muted-foreground">
               {t}
             </span>
           ))}
         </div>
 
-        {/* Spacer pushes buttons to bottom */}
-        <div className="flex-1" />
-
-        {/* Action buttons */}
-        <div className="flex gap-2 pt-4 border-t border-white/6">
-          <LiquidButton variant="glass" size="sm" className="flex-1 px-3" onClick={() => onViewCaseStudy(project)}>
-            View Case Study
-            <ArrowUpRight size={12} />
-          </LiquidButton>
-          <LiquidButton
-            variant="electric"
-            size="sm"
-            className="flex-1 px-3"
-            href={CALENDLY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {ctaLabelFor(project)}
-            <ExternalLink size={12} />
-          </LiquidButton>
-        </div>
+        <CardActions project={project} onOpen={onOpen} className={cn('mt-auto', lead && 'lg:max-w-md')} />
       </div>
-    </motion.article>
+    </article>
   )
 }
 
-// ── SaaS Project Card (flagship: one per row, 16:9 hero) ──────────────────────
+// ── SaaS Project Card (flagship: a full row, picture beside the words) ────────
 
-function SaaSProjectCard({
-  project,
-  index,
-  onViewCaseStudy,
-}: {
-  project: Project
-  index: number
-  onViewCaseStudy: (p: Project) => void
-}) {
-  const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
-
+function SaaSProjectCard({ project, onOpen }: { project: Project; onOpen: OpenCaseStudy }) {
+  const fit = fitFor(project)
   return (
-    <motion.article
-      ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.65, delay: Math.min(index * 0.08, 0.4), ease: [0.16, 1, 0.3, 1] }}
+    <article
       onPointerMove={trackSpotlight}
-      className="spotlight group relative premium-card rounded-2xl overflow-hidden col-span-full"
+      className="proj-card spotlight premium-card group relative rounded-[22px] p-2"
     >
-      {/* Horizontal split on desktop, stacked below lg. Card height is driven by
-          content only: no min-height, no viewport units, no stretch. */}
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] gap-5 lg:gap-7 p-6 pt-8">
-        {/* 16:9 image on a small stack of panes that fan out on hover */}
-        <div className="relative self-start lg:self-center">
-          <span
-            aria-hidden="true"
-            className="stack-card absolute inset-0 rounded-xl border border-foreground/10 bg-[hsl(var(--card))]"
-            data-pos="2"
-          />
-          <span
-            aria-hidden="true"
-            className="stack-card absolute inset-0 rounded-xl border border-foreground/10 bg-[hsl(var(--card))]"
-            data-pos="1"
-          />
-        <div
-          className={cn(
-            'stack-card dark-stage relative w-full aspect-video overflow-hidden rounded-xl border border-white/8 bg-[hsl(214_44%_7%)]',
-            'shadow-[0_18px_40px_-20px_rgba(0,0,0,0.8)] light:shadow-[0_18px_40px_-20px_rgba(26,44,82,0.4)]',
-            fitFor(project) === 'contain' && 'p-2'
-          )}
-          data-pos="0"
+      <FloatShadow />
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-7">
+        <button
+          type="button"
+          onClick={() => onOpen(project)}
+          aria-label={`Open the ${project.title} case study`}
+          className="dark-stage proj-frame relative block aspect-video w-full cursor-zoom-in self-start bg-[hsl(214_44%_7%)] light:bg-[#E9EFF5] lg:self-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#34D4F0]"
         >
           <img
             src={project.image}
             alt={`${project.title} application interface`}
-            className={
-              fitFor(project) === 'contain'
-                ? 'w-full h-full object-contain object-center'
-                : 'w-full h-full object-cover object-top'
-            }
+            loading="lazy"
+            decoding="async"
+            className={cn('shot-soft proj-shot', fit === 'cover' ? 'proj-shot--app' : 'proj-shot--contain')}
           />
-          {/* Gradient only over edge-to-edge shots; it would tint the letterboxing. */}
-          {fitFor(project) === 'cover' && (
-            <div className="absolute inset-0 bg-gradient-to-t from-[#060f18]/45 via-transparent to-transparent pointer-events-none" />
-          )}
-        </div>
-        </div>
+        </button>
 
-        {/* Content column */}
-        <div className="flex flex-col min-w-0">
-          <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border mb-2.5 w-fit ${categoryColors[project.category] ?? 'text-muted-foreground bg-white/5 border-white/10'}`}
-          >
-            <Layers size={10} />
-            {project.category}
-          </span>
-
-          <h3 className="font-bold text-foreground text-lg md:text-xl leading-snug tracking-tight mb-1">
-            {project.title}
-          </h3>
-          <p className="text-[#0DACC9] text-sm font-medium mb-2.5">{project.subtitle}</p>
-
-          <p className="text-muted-foreground text-sm leading-relaxed mb-3.5">
-            {project.description}
-          </p>
+        <div className="relative z-[1] flex min-w-0 flex-col px-4 pb-4 pt-2 lg:py-5 lg:pr-6">
+          <CategoryBadge category={project.category} className="mb-3" />
+          <h3 className="mb-1 text-lg font-bold leading-snug tracking-tight text-foreground md:text-xl">{project.title}</h3>
+          <p className="mb-2.5 text-sm font-medium text-[#0DACC9]">{project.subtitle}</p>
+          <p className="mb-3.5 text-sm leading-relaxed text-muted-foreground">{project.description}</p>
 
           {project.highlights && (
-            <ul className="space-y-1.5 mb-3.5">
+            <ul className="mb-3.5 space-y-1.5">
               {project.highlights.map((h, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
-                  <span className="text-[#0DACC9] shrink-0 mt-0.5 font-bold">•</span>
+                <li key={i} className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+                  <span className="mt-0.5 shrink-0 font-bold text-[#0DACC9]">•</span>
                   {h}
                 </li>
               ))}
             </ul>
           )}
 
-          <div className="flex flex-wrap gap-1.5 mb-4">
+          <div className="mb-4 flex flex-wrap gap-1.5">
             {project.tech.map((t) => (
-              <span
-                key={t}
-                className="px-2.5 py-0.5 rounded-full text-xs border border-white/8 bg-white/3 text-muted-foreground"
-              >
+              <span key={t} className="rounded-full border border-white/8 bg-white/3 px-2.5 py-0.5 text-xs text-muted-foreground">
                 {t}
               </span>
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2 mt-auto pt-3.5 border-t border-white/6">
-            <LiquidButton variant="glass" size="sm" onClick={() => onViewCaseStudy(project)}>
-              View Case Study
-              <ArrowUpRight size={12} />
-            </LiquidButton>
-            <LiquidButton
-              variant="electric"
-              size="sm"
-              href={CALENDLY_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Request Build
-              <ExternalLink size={12} />
-            </LiquidButton>
-          </div>
+          <CardActions project={project} onOpen={onOpen} className="mt-auto max-w-md pt-3.5" />
         </div>
       </div>
-    </motion.article>
+    </article>
   )
 }
 
-// ── Projects Section ──────────────────────────────────────────────────────────
+// ── Pages ─────────────────────────────────────────────────────────────────────
 
-// 2 rows × 3 columns on desktop; flagship SaaS cards are full width, 2 per page.
-const CARDS_PER_PAGE = 6
-const SAAS_CARDS_PER_PAGE = 2
+/** A desktop page is three rows of three cells: a featured row, then two rows of cards. */
+const PAGE_CELLS = 9
+
+type Slot = { project: Project; lead: boolean }
+
+/**
+ * Packs a list into pages of three rows: the first regular card on each page leads as a featured row,
+ * flagship SaaS cards also take a full row, every other card one cell. A card that would overflow the
+ * page starts the next one.
+ */
+function paginate(list: Project[]): Slot[][] {
+  const pages: Slot[][] = []
+  let page: Slot[] = []
+  let cells = 0
+  let hasLead = false
+
+  for (const project of list) {
+    const saas = project.type === 'saas'
+    let lead = !saas && !hasLead
+    let width = saas || lead ? 3 : 1
+    if (page.length && cells + width > PAGE_CELLS) {
+      pages.push(page)
+      page = []
+      cells = 0
+      hasLead = false
+      lead = !saas
+      width = saas || lead ? 3 : 1
+    }
+    page.push({ project, lead })
+    cells += width
+    if (lead) hasLead = true
+  }
+  if (page.length) pages.push(page)
+  return pages
+}
 
 // The default "All" tab leads with visual work; everything else keeps data order.
 const ALL_TAB_LEAD = ['ai-video', 'video-editing']
@@ -519,17 +248,23 @@ function allTabRank(project: Project) {
 
 const allTabProjects = [...projects].sort((a, b) => allTabRank(a) - allTabRank(b))
 
+// ── Projects Section ──────────────────────────────────────────────────────────
+
 export default function ProjectsSection() {
   const headerRef = useRef<HTMLDivElement>(null)
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
   const [filter, setFilter] = useState('all')
   const [page, setPage] = useState(0)
-  const [activeModal, setActiveModal] = useState<Project | null>(null)
+  const [activeCase, setActiveCase] = useState<Project | null>(null)
 
-  const filtered = filter === 'all' ? allTabProjects : projects.filter((p) => p.filters.includes(filter))
-  const perPage = filter === 'saas' ? SAAS_CARDS_PER_PAGE : CARDS_PER_PAGE
-  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage))
-  const visibleProjects = filtered.slice(page * perPage, page * perPage + perPage)
+  const filtered = useMemo(
+    () => (filter === 'all' ? allTabProjects : projects.filter((p) => p.filters.includes(filter))),
+    [filter]
+  )
+  const pages = useMemo(() => paginate(filtered), [filtered])
+  const totalPages = Math.max(1, pages.length)
+  const current = Math.min(page, totalPages - 1)
+  const slots = pages[current] ?? []
 
   const prev = useCallback(() => setPage((p) => Math.max(0, p - 1)), [])
   const next = useCallback(() => setPage((p) => Math.min(totalPages - 1, p + 1)), [totalPages])
@@ -541,29 +276,31 @@ export default function ProjectsSection() {
 
   return (
     <>
-      <section id="projects" className="py-20 relative overflow-hidden">
+      <section id="projects" className="projects-timeline relative overflow-hidden py-20">
         <SectionBackground variant="grid-fade" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-[#0DACC9]/3 blur-[120px] pointer-events-none" />
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[400px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#0DACC9]/3 blur-[120px]" />
 
         <div className="section-shell relative z-10">
-          {/* Header */}
+          {/* Header: a light-and-bold title, the eyebrow's rules fill as you scroll the section */}
           <motion.div
             ref={headerRef}
             initial={{ opacity: 0, y: 24 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
-            className="text-center mb-10"
+            className="mb-10 text-center"
           >
-            <p className="text-[#0DACC9] text-xs font-semibold uppercase tracking-widest mb-4">
+            <p className="mb-4 flex items-center justify-center gap-4 text-xs font-semibold uppercase tracking-widest text-[#0DACC9]">
+              <span className="section-rule section-rule--start" aria-hidden="true" />
               Portfolio & Case Studies
+              <span className="section-rule" aria-hidden="true" />
             </p>
             <h2
-              className="font-bold text-foreground tracking-tight leading-tight mb-4"
-              style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+              className="mb-4 leading-[1.05] tracking-[-0.035em] text-foreground"
+              style={{ fontSize: 'clamp(2.2rem, 4.6vw, 3.6rem)' }}
             >
-              Projects That Ship
+              <span className="font-light">Projects That</span> <span className="font-bold">Ship</span>
             </h2>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+            <p className="mx-auto max-w-xl text-lg leading-relaxed text-muted-foreground">
               Real systems built for real businesses — not demos, not mockups.
             </p>
           </motion.div>
@@ -573,7 +310,7 @@ export default function ProjectsSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.12 }}
-            className="flex flex-wrap items-center justify-center gap-2 mb-12"
+            className="mb-12 flex flex-wrap items-center justify-center gap-2"
             role="tablist"
             aria-label="Filter projects by category"
           >
@@ -610,44 +347,39 @@ export default function ProjectsSection() {
             })}
           </motion.div>
 
-          {/* Cards grid — 3 across, 2 rows per page */}
+          {/* Cards: a featured row, then two rows of cards. Cells rise in as they scroll into view. */}
           <AnimatePresence mode="wait">
             <motion.div
-              key={`${filter}-${page}`}
+              key={`${filter}-${current}`}
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch"
+              className="grid grid-flow-row-dense grid-cols-1 items-stretch gap-6 md:grid-cols-2 lg:grid-cols-3"
             >
-              {visibleProjects.map((project, i) =>
-                project.type === 'saas' ? (
-                  <SaaSProjectCard
-                    key={project.id}
-                    project={project}
-                    index={i}
-                    onViewCaseStudy={setActiveModal}
-                  />
-                ) : (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    index={i}
-                    onViewCaseStudy={setActiveModal}
-                  />
+              {slots.map(({ project, lead }) => {
+                const saas = project.type === 'saas'
+                return (
+                  <div key={project.id} className={cn('scroll-rise min-w-0', (saas || lead) && 'col-span-full')}>
+                    {saas ? (
+                      <SaaSProjectCard project={project} onOpen={setActiveCase} />
+                    ) : (
+                      <ProjectCard project={project} lead={lead} onOpen={setActiveCase} />
+                    )}
+                  </div>
                 )
-              )}
+              })}
             </motion.div>
           </AnimatePresence>
 
           {/* Empty state */}
-          {visibleProjects.length === 0 && (
-            <div className="premium-card rounded-2xl py-16 flex flex-col items-center text-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-[#0DACC9]/15 border border-[#0DACC9]/25 flex items-center justify-center">
+          {slots.length === 0 && (
+            <div className="premium-card flex flex-col items-center gap-3 rounded-2xl py-16 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#0DACC9]/25 bg-[#0DACC9]/15">
                 <Layers size={22} className="text-[#0DACC9]" />
               </div>
-              <p className="text-foreground font-semibold">Case studies coming soon</p>
-              <p className="text-muted-foreground text-sm max-w-sm">
+              <p className="font-semibold text-foreground">Case studies coming soon</p>
+              <p className="max-w-sm text-sm text-muted-foreground">
                 New builds in this category are being documented. Book a call to see the work in progress.
               </p>
             </div>
@@ -655,12 +387,12 @@ export default function ProjectsSection() {
 
           {/* Pagination: arrows + dots */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 mt-10">
+            <div className="mt-10 flex items-center justify-center gap-4">
               <button
                 onClick={prev}
-                disabled={page === 0}
+                disabled={current === 0}
                 aria-label="Previous page"
-                className="w-9 h-9 rounded-xl border border-white/10 bg-white/4 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10 active:scale-[0.96] disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100 transition-[background,color,opacity,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-muted-foreground transition-[background,color,opacity,transform] duration-200 hover:bg-white/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9] active:scale-[0.96] disabled:cursor-not-allowed disabled:opacity-30 disabled:active:scale-100"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -671,11 +403,9 @@ export default function ProjectsSection() {
                     key={i}
                     onClick={() => setPage(i)}
                     aria-label={`Go to page ${i + 1}`}
-                    aria-current={i === page}
+                    aria-current={i === current}
                     className={`rounded-full transition-[width,background,opacity] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9] ${
-                      i === page
-                        ? 'w-6 h-2 bg-[#0DACC9]'
-                        : 'w-2 h-2 bg-white/20 hover:bg-white/40'
+                      i === current ? 'h-2 w-6 bg-[#0DACC9]' : 'h-2 w-2 bg-white/20 hover:bg-white/40'
                     }`}
                   />
                 ))}
@@ -683,9 +413,9 @@ export default function ProjectsSection() {
 
               <button
                 onClick={next}
-                disabled={page === totalPages - 1}
+                disabled={current === totalPages - 1}
                 aria-label="Next page"
-                className="w-9 h-9 rounded-xl border border-white/10 bg-white/4 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10 active:scale-[0.96] disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100 transition-[background,color,opacity,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9]"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-muted-foreground transition-[background,color,opacity,transform] duration-200 hover:bg-white/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0DACC9] active:scale-[0.96] disabled:cursor-not-allowed disabled:opacity-30 disabled:active:scale-100"
               >
                 <ChevronRight size={16} />
               </button>
@@ -694,10 +424,18 @@ export default function ProjectsSection() {
         </div>
       </section>
 
-      {/* Modal */}
-      {activeModal && (
-        <CaseStudyModal project={activeModal} onClose={() => setActiveModal(null)} />
-      )}
+      {/* Case study sheet */}
+      <AnimatePresence>
+        {activeCase && (
+          <CaseStudySheet
+            key="case-study-sheet"
+            project={activeCase}
+            list={filtered}
+            onNavigate={setActiveCase}
+            onClose={() => setActiveCase(null)}
+          />
+        )}
+      </AnimatePresence>
     </>
   )
 }

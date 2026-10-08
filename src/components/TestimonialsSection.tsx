@@ -1,39 +1,30 @@
 import { useRef, useState } from 'react'
-import React from 'react'
 import { motion, useInView } from 'framer-motion'
-import { Quote, Play } from 'lucide-react'
+import { Play } from 'lucide-react'
 import { testimonials } from '@/data/portfolio'
 import SectionBackground from '@/components/SectionBackground'
-import { trackSpotlight } from '@/lib/motion'
 
 const testimonialVideo = '/videos/testimonial.mp4'
+const pad2 = (n: number) => String(n).padStart(2, '0')
 
-function TestimonialCard({ testimonial, index }: { testimonial: typeof testimonials[0]; index: number }) {
-  const ref = useRef<HTMLElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
-
+/** One band of the ledger: a hairline that draws in, the quote set large, who said it. */
+function QuoteBand({ testimonial }: { testimonial: (typeof testimonials)[0] }) {
   return (
-    <motion.blockquote
-      ref={ref as React.RefObject<HTMLQuoteElement>}
-      initial={{ opacity: 0, y: 24 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-      onPointerMove={trackSpotlight}
-      className="spotlight premium-card rounded-2xl p-6 relative"
-    >
-      <Quote size={18} className="text-[#0DACC9]/30 mb-3" />
-      <p className="text-foreground/80 text-sm leading-relaxed mb-4 italic">
-        "{testimonial.quote}"
+    <blockquote className="scroll-rise relative m-0 grid gap-5 py-9">
+      <span aria-hidden="true" className="ledger-rule absolute inset-x-0 top-0 h-px origin-left bg-foreground/15" />
+      <p
+        className="m-0 font-light leading-[1.32] tracking-[-0.02em] text-foreground/90"
+        style={{ fontSize: 'clamp(1.25rem, 2.3vw, 1.75rem)' }}
+      >
+        “{testimonial.quote}”
       </p>
-      <footer className="flex items-center gap-3">
-        <div className="w-7 h-7 rounded-full bg-[#0DACC9]/15 border border-[#0DACC9]/25 flex items-center justify-center shrink-0">
-          <span className="text-[#0DACC9] text-xs font-bold">
-            {testimonial.author.charAt(0)}
-          </span>
-        </div>
-        <span className="text-muted-foreground text-xs">— {testimonial.author}</span>
+      <footer className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#0DACC9]/25 bg-[#0DACC9]/15 text-xs font-bold tracking-normal text-[#0DACC9]">
+          {testimonial.author.charAt(0)}
+        </span>
+        {testimonial.author}
       </footer>
-    </motion.blockquote>
+    </blockquote>
   )
 }
 
@@ -46,21 +37,21 @@ function TestimonialVideoPlayer() {
   }
 
   return (
-    <div className="dark-stage premium-card rounded-2xl overflow-hidden">
+    <div className="dark-stage premium-card overflow-hidden rounded-2xl">
       {/* Browser chrome bar */}
-      <div className="h-8 bg-[hsl(214_44%_8%)] border-b border-white/5 flex items-center px-4 gap-2 shrink-0">
-        <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
-        <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
-        <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+      <div className="flex h-8 shrink-0 items-center gap-2 border-b border-white/5 bg-[hsl(214_44%_8%)] px-4">
+        <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
+        <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
+        <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
         <span className="mx-auto text-[10px] text-muted-foreground/40">Client Testimonial</span>
       </div>
 
       {/* Video */}
-      <div className="relative w-full aspect-video">
+      <div className="relative aspect-video w-full">
         <video
           ref={videoRef}
           src={testimonialVideo}
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
           playsInline
           preload="metadata"
           controls={playing}
@@ -73,13 +64,13 @@ function TestimonialVideoPlayer() {
           <button
             onClick={handlePlay}
             aria-label="Play testimonial video"
-            className="absolute inset-0 flex items-center justify-center bg-black/45 hover:bg-black/30 transition-colors duration-200 group"
+            className="group absolute inset-0 flex items-center justify-center bg-black/45 transition-colors duration-200 hover:bg-black/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#34D4F0]"
           >
             <div className="flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-full bg-[#0DACC9] flex items-center justify-center shadow-electric group-hover:scale-105 transition-transform duration-200">
-                <Play size={22} className="text-white ml-1" fill="white" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#0DACC9] shadow-electric transition-transform duration-200 group-hover:scale-105 group-active:scale-95">
+                <Play size={22} className="ml-1 text-white" fill="white" />
               </div>
-              <span className="text-white/75 text-sm font-medium">Play Video</span>
+              <span className="text-sm font-medium text-white/75">Play Video</span>
             </div>
           </button>
         )}
@@ -88,53 +79,48 @@ function TestimonialVideoPlayer() {
   )
 }
 
+/**
+ * Testimonials as a ledger: the label holds beside the record while the quotes scroll by as large,
+ * quiet bands. The client video plays in place above them.
+ */
 export default function TestimonialsSection() {
   const headerRef = useRef<HTMLDivElement>(null)
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' })
 
   return (
-    <section id="testimonials" className="py-20 relative overflow-hidden">
+    <section id="testimonials" className="relative overflow-hidden py-20">
       <SectionBackground variant="violet-left" />
       <div className="section-shell relative z-10">
-
-        {/* Section label + heading (centered above the grid) */}
-        <motion.div
-          ref={headerRef}
-          initial={{ opacity: 0, y: 24 }}
-          animate={headerInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <p className="text-[#0DACC9] text-xs font-semibold uppercase tracking-widest mb-4">
-            Client Testimonials
-          </p>
-          <h2
-            className="font-bold text-foreground tracking-tight leading-tight"
-            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
-          >
-            Short feedback from teams I've supported.
-          </h2>
-        </motion.div>
-
-        {/* Two-column: video left, content right */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-
-          {/* LEFT — video player + vision card */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(260px,0.78fr)_minmax(0,1.6fr)] lg:gap-16">
+          {/* The held label */}
           <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            animate={headerInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col gap-5"
+            ref={headerRef}
+            initial={{ opacity: 0, y: 24 }}
+            animate={headerInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col gap-6 self-start lg:sticky lg:top-28"
           >
-            <TestimonialVideoPlayer />
-
-            {/* Vision card below video */}
-            <div className="premium-card rounded-2xl p-7 electric-border">
-              <p className="text-xl font-bold text-foreground mb-3 leading-snug">
-                Vision + Automation
-                {' '}<span className="gradient-text">= Growth.</span>
+            <div>
+              <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#0DACC9]">
+                Client Testimonials
               </p>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <h2
+                className="mb-4 font-bold leading-tight tracking-tight text-foreground"
+                style={{ fontSize: 'clamp(1.9rem, 3.2vw, 2.6rem)' }}
+              >
+                Short feedback from teams I've supported.
+              </h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground tabular-nums">
+                {pad2(testimonials.length)} quotes · 01 video
+              </p>
+            </div>
+
+            {/* Vision card */}
+            <div className="premium-card electric-border rounded-2xl p-6">
+              <p className="mb-3 text-lg font-bold leading-snug text-foreground">
+                Vision + Automation{' '}<span className="gradient-text">= Growth.</span>
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 These aren't just testimonials — they're proof of what happens when smart systems replace
                 manual follow-up. From n8n workflows to GoHighLevel automations and conversion-focused
                 websites, the goal is always the same: predictable growth.
@@ -142,17 +128,18 @@ export default function TestimonialsSection() {
             </div>
           </motion.div>
 
-          {/* RIGHT — testimonial cards */}
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={headerInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col gap-5"
-          >
-            {testimonials.map((t, i) => (
-              <TestimonialCard key={t.id} testimonial={t} index={i} />
-            ))}
-          </motion.div>
+          {/* The record: the video, then the quotes */}
+          <div className="min-w-0">
+            <div className="scroll-rise">
+              <TestimonialVideoPlayer />
+            </div>
+            <div className="mt-6">
+              {testimonials.map((t) => (
+                <QuoteBand key={t.id} testimonial={t} />
+              ))}
+              <span aria-hidden="true" className="ledger-rule block h-px origin-left bg-foreground/15" />
+            </div>
+          </div>
         </div>
       </div>
     </section>

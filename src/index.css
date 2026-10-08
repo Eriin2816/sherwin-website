@@ -1,3 +1,4 @@
+@import "@fontsource/geist-sans/300.css";
 @import "@fontsource/geist-sans/400.css";
 @import "@fontsource/geist-sans/500.css";
 @import "@fontsource/geist-sans/600.css";
@@ -32,6 +33,8 @@
     --radius: 0.75rem;
     --hero-heading: 195 15% 96%;
     --hero-sub: 210 12% 72%;
+    /* A critically damped spring solved into linear(): settles softly, never overshoots. */
+    --ease-spring: linear(0, 0.0941 5.6%, 0.2736 11.1%, 0.4549 16.7%, 0.6077 22.2%, 0.7256 27.8%, 0.812 33.3%, 0.8733 38.9%, 0.9156 44.4%, 0.9444 50%, 0.9637 55.6%, 0.9764 61.1%, 0.9848 66.7%, 0.9902 72.2%, 0.9938 77.8%, 0.996 83.3%, 0.9975 88.9%, 0.9984 94.4%, 1 100%);
     /* The page's own background, captured at the root so it survives the
        token overrides inside .dark-stage (used for edge fades out of media). */
     --page-bg: var(--background);
@@ -661,21 +664,160 @@
 }
 .g-peak-ping { transform-origin: center; animation: g-peak-ping 4.6s ease-out infinite; }
 
-/* ── Stacked media: screenshot windows layered like a deck ── */
-.stack-card {
-  transition:
-    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: 50% 0%;
-  will-change: transform;
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROJECT CARDS: clean frame, drift, lift
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The work sits inset in its card with matching corners (card 22px − 8px inset). A hairline drawn
+   over the picture keeps a white capture from melting into the card. */
+.proj-frame {
+  position: relative;
+  z-index: 1;
+  overflow: clip;
+  border-radius: 14px;
 }
-.stack-card[data-pos='0'] { transform: translateY(0) scale(1); opacity: 1; z-index: 3; }
-.stack-card[data-pos='1'] { transform: translateY(-12px) scale(0.94); opacity: 0.7; z-index: 2; }
-.stack-card[data-pos='2'] { transform: translateY(-24px) scale(0.88); opacity: 0.4; z-index: 1; }
-@media (hover: hover) {
-  .group:hover .stack-card[data-pos='0'] { transform: translateY(-4px) scale(1.01); }
-  .group:hover .stack-card[data-pos='1'] { transform: translateY(-19px) scale(0.95); opacity: 0.8; }
-  .group:hover .stack-card[data-pos='2'] { transform: translateY(-34px) scale(0.9); opacity: 0.5; }
+.proj-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.09);
+  pointer-events: none;
+}
+.proj-shot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0;
+  transition: transform 0.59s var(--ease-spring);
+}
+/* App screens read from the top left (sidebars, tables): crop from there, never the left edge. */
+.proj-shot--app {
+  object-position: 0 0;
+}
+.proj-shot--contain {
+  padding: 8px;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Lift on hover: the card rises 3px and a floating shadow fades in (transform + opacity only). */
+.proj-card {
+  transition: transform 0.59s var(--ease-spring);
+}
+.proj-float {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 30px 64px -22px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(13 172 201 / 0.14);
+  opacity: 0;
+  transition: opacity 0.59s var(--ease-spring);
+  pointer-events: none;
+}
+.light .proj-float {
+  box-shadow: 0 30px 60px -24px rgb(26 60 110 / 0.34), 0 0 0 1px rgb(13 172 201 / 0.18);
+}
+@media (hover: hover) and (pointer: fine) {
+  .proj-card:hover { transform: translateY(-3px); }
+  .proj-card:hover .proj-float { opacity: 1; }
+  .proj-card:hover .proj-shot { transform: scale(1.04); }
+}
+
+/* White captures glare on the navy theme: soften them a touch. Light theme keeps them as they are. */
+html:not(.light) .shot-soft {
+  filter: brightness(0.86);
+}
+
+/* Section eyebrow rules that fill as the section scrolls by (see the scroll-driven block below). */
+.section-rule {
+  position: relative;
+  display: block;
+  width: clamp(28px, 8vw, 88px);
+  height: 1px;
+  overflow: hidden;
+  background: hsl(var(--foreground) / 0.12);
+}
+.section-rule::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #0dacc9;
+  transform-origin: 0 50%;
+}
+.section-rule--start::before {
+  transform-origin: 100% 50%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCROLL-DRIVEN MOTION (CSS view timelines: compositor only, no JS)
+   Browsers without view timelines simply show everything at rest.
+   The timeline rules sit in their own doubled-class rules: the `animation` shorthand resets
+   animation-timeline, and minifiers fold a same-rule longhand back into it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes scroll-rise {
+  from { opacity: 0; transform: translateY(40px) scale(0.97); }
+}
+@keyframes shot-drift {
+  from { translate: 0 -4%; }
+  to { translate: 0 4%; }
+}
+@keyframes rule-draw {
+  from { transform: scaleX(0); }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Cards and quotes rise in as they enter the screen. */
+    .scroll-rise {
+      animation: scroll-rise linear both;
+    }
+    .scroll-rise.scroll-rise {
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+
+    /* Screenshots are the deeper layer: 110% tall, drifting ±4% while the card crosses the screen. */
+    .proj-shot:not(.proj-shot--contain) {
+      top: -5%;
+      height: 110%;
+      animation: shot-drift linear both;
+    }
+    .proj-shot.proj-shot:not(.proj-shot--contain) {
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+
+    /* The Projects eyebrow rules fill with progress through the section. */
+    .projects-timeline {
+      view-timeline-name: --projects;
+    }
+    .section-rule::before {
+      animation: rule-draw linear both;
+    }
+    .section-rule.section-rule::before {
+      animation-timeline: --projects;
+      animation-range: cover 5% cover 60%;
+    }
+
+    /* Testimonial hairlines draw in as each quote arrives. */
+    .ledger-rule {
+      animation: rule-draw linear both;
+    }
+    .ledger-rule.ledger-rule {
+      animation-timeline: view();
+      animation-range: entry 20% entry 100%;
+    }
+  }
+}
+
+/* FAQ answers rise a few pixels as they open. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(6px); }
 }
 
 /* Toast that slides in and out of a live diagram. */
@@ -697,5 +839,4 @@
   }
   .flow-toast { opacity: 1; }
   .border-beam-spinner { transform: translate(-50%, -50%) rotate(300deg); }
-  .stack-card { transition: none; }
 }

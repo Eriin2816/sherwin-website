@@ -34,7 +34,7 @@ const AccordionTrigger = React.forwardRef<
       {...props}
     >
       {children}
-      <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-200" />
+      <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-[440ms] ease-[var(--ease-spring)]" />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ))
@@ -46,10 +46,18 @@ const AccordionContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
     ref={ref}
-    className="overflow-hidden text-muted-foreground data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    className="group overflow-hidden text-muted-foreground data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}
   >
-    <div className={cn('pb-5 pt-0 text-sm leading-relaxed', className)}>{children}</div>
+    {/* The answer rises a few pixels as it opens (transform + opacity). */}
+    <div
+      className={cn(
+        'pb-5 pt-0 text-sm leading-relaxed motion-safe:group-data-[state=open]:animate-[rise-in_0.44s_var(--ease-spring)_both]',
+        className
+      )}
+    >
+      {children}
+    </div>
   </AccordionPrimitive.Content>
 ))
 AccordionContent.displayName = AccordionPrimitive.Content.displayName

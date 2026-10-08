@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import logoUrl from '../../brand_assets/taweng-logo.png'
@@ -13,12 +13,40 @@ interface NavbarProps {
 }
 
 const PILL_SPRING = { type: 'spring', stiffness: 420, damping: 36, mass: 0.8 } as const
+const TILE_SPRING = { type: 'spring', stiffness: 380, damping: 34, mass: 0.8 } as const
+
+type Tile = { left: number; top: number; width: number; height: number }
+
+/**
+ * The hover tile: it appears under the pointer (or keyboard focus), glides between links as you
+ * move, and fades out where you leave it. A fresh appearance remounts it in place, so it never
+ * slides in from wherever it was last seen. Layout animation runs on transforms.
+ */
+function useNavHover() {
+  const [tile, setTile] = useState<Tile | null>(null)
+  const [visible, setVisible] = useState(false)
+  const [appearance, setAppearance] = useState(0)
+  const visibleRef = useRef(false)
+
+  const show = (el: HTMLElement) => {
+    setTile({ left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight })
+    if (!visibleRef.current) setAppearance((n) => n + 1)
+    visibleRef.current = true
+    setVisible(true)
+  }
+  const hide = () => {
+    visibleRef.current = false
+    setVisible(false)
+  }
+  return { tile, visible, appearance, show, hide }
+}
 
 export default function Navbar({ theme, onToggleTheme }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
   const { pathname } = useLocation()
+  const navHover = useNavHover()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -86,17 +114,38 @@ export default function Navbar({ theme, onToggleTheme }: NavbarProps) {
             </button>
 
             {/* Desktop Nav */}
-            <ul className="hidden md:flex items-center gap-1">
+            <ul
+              className="relative isolate hidden md:flex items-center gap-1"
+              onPointerLeave={navHover.hide}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) navHover.hide()
+              }}
+            >
+              {/* Hover tile, behind the links and the active pill */}
+              {navHover.tile && (
+                <motion.span
+                  key={navHover.appearance}
+                  aria-hidden="true"
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: navHover.visible ? 1 : 0 }}
+                  transition={{ layout: TILE_SPRING, opacity: { duration: 0.22 } }}
+                  className="pointer-events-none absolute -z-20 bg-foreground/[0.07]"
+                  style={{ ...navHover.tile, borderRadius: 9999 }}
+                />
+              )}
               {navItems.map(({ label, href }) => {
                 const active = activeSection === href.slice(1)
                 return (
                   <li key={href}>
                     <button
                       onClick={() => scrollTo(href)}
+                      onPointerEnter={(e) => navHover.show(e.currentTarget)}
+                      onFocus={(e) => navHover.show(e.currentTarget)}
                       aria-current={active ? 'true' : undefined}
                       className={cn(
                         'relative px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                        active ? 'text-[#0DACC9]' : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06]'
+                        active ? 'text-[#0DACC9]' : 'text-muted-foreground hover:text-foreground'
                       )}
                     >
                       {active && (
