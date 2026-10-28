@@ -1,68 +1,34 @@
-import { useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
-import { techStack } from '@/data/portfolio'
+import { ArrowRight } from 'lucide-react'
+import { toolRows } from '@/data/portfolio'
+import { toolIcons } from '@/data/toolIcons'
 import SectionBackground from '@/components/SectionBackground'
-import SignalBus from '@/components/motion/SignalBus'
-import { cn } from '@/lib/utils'
-import { useInViewport } from '@/lib/motion'
+import IntegrationHero from '@/components/ui/integration-hero'
+import { LiquidButton } from '@/components/ui/liquid-glass-button'
+
+const rows = toolRows.map((row) =>
+  row.map((tool) => ({ name: tool.name, path: tool.icon ? toolIcons[tool.icon] : undefined, monogram: tool.monogram })),
+)
 
 export default function TechStackSection() {
-  const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
-  const [busRef, busVisible] = useInViewport<HTMLDivElement>()
-
   return (
     <section className="py-20 border-y border-border/30 relative overflow-hidden">
       <SectionBackground variant="dual-soft" />
       <div className="section-shell relative z-10">
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-10"
-        >
-          <p className="text-[#0DACC9] text-xs font-semibold uppercase tracking-widest mb-3">
-            The Tools Behind My Builds
-          </p>
-          <h2 className="font-bold text-foreground text-2xl tracking-tight">
-            Built with the right stack for every layer
-          </h2>
-        </motion.div>
-
-        {/* Integration bus framing the stack: packets travel between tools */}
-        <div ref={busRef} className={cn('mx-auto max-w-5xl', !busVisible && 'motion-paused')}>
-          <SignalBus duration={8} className="mb-7" />
-
-          {/* Compact grid of all tech pills */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="flex flex-wrap gap-3 justify-center"
-          >
-            {techStack.map((item, i) => (
-              <motion.span
-                key={item.name}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={inView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.4, delay: 0.1 + i * 0.04 }}
-                className="group flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium premium-card border border-white/8 text-foreground/75 hover:text-[#0DACC9] hover:border-[#0DACC9]/30 hover:bg-[#0DACC9]/5 transition-[color,border-color,background] duration-200 cursor-default"
-              >
-                <span
-                  className="dot-wave w-1.5 h-1.5 rounded-full bg-[#0DACC9] shrink-0"
-                  style={{ animationDelay: `${i * 0.32}s` }}
-                />
-                {item.name}
-                <span className="text-[10px] text-muted-foreground/40 uppercase tracking-wider font-normal">
-                  {item.category} · {item.level}
-                </span>
-              </motion.span>
-            ))}
-          </motion.div>
-
-          <SignalBus duration={10} delay={-3} reverse className="mt-7" />
-        </div>
+        <IntegrationHero
+          eyebrow="The Tools Behind My Builds"
+          title="Built with the right stack for every layer"
+          description="The languages, platforms and services I use to ship web apps, APIs, AI workflows, stores and video, from first commit to deployment."
+          rows={rows}
+          action={
+            <LiquidButton
+              size="lg"
+              onClick={() => document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              View My Work
+              <ArrowRight size={16} className="transition-transform duration-300 group-hover/liquid:translate-x-1" />
+            </LiquidButton>
+          }
+        />
       </div>
     </section>
   )

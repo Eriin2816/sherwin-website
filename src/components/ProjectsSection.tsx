@@ -160,7 +160,7 @@ function SaaSProjectCard({ project, onOpen }: { project: Project; onOpen: OpenCa
           className="dark-stage proj-frame relative block aspect-video w-full cursor-zoom-in self-start bg-[hsl(214_44%_7%)] light:bg-[#E9EFF5] lg:self-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#34D4F0]"
         >
           <img
-            src={project.image}
+            src={slidesFor(project)[0]}
             alt={`${project.title} application interface`}
             loading="lazy"
             decoding="async"
@@ -242,10 +242,12 @@ function paginate(list: Project[]): Slot[][] {
 // data order after them (Array.prototype.sort is stable).
 const ALL_TAB_PRIORITY = [
   'gabay-bulacan',
+  'creatives',
   'estimatorpro',
   'showtime-pools',
   'showtime-equipment-store',
   'synful-novelties-shopify',
+  'bad-pirates-tcg',
   'skull-key',
   'multimodal-ai-slack-assistant',
   'hubstaff-expense',
