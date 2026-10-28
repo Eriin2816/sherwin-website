@@ -17,6 +17,7 @@ const categoryColors: Record<string, string> = {
   'SaaS': 'text-[#34D4F0] bg-[#0DACC9]/12 border-[#0DACC9]/30',
   'Video Editing': 'text-[#F4B860] bg-[#F4B860]/10 border-[#F4B860]/25',
   'AI Video': 'text-[#C9A2FF] bg-[#C9A2FF]/10 border-[#C9A2FF]/25',
+  'AI Music Video': 'text-[#C9A2FF] bg-[#C9A2FF]/10 border-[#C9A2FF]/25',
   'Web & Shopify': 'text-[#5FE0B7] bg-[#5FE0B7]/10 border-[#5FE0B7]/25',
 }
 
@@ -37,7 +38,7 @@ export function CategoryBadge({ category, className }: { category: string; class
 
 /** Video work asks for a video; everything else is a build. */
 export function ctaLabelFor(project: Project) {
-  return project.filters.some((f) => f === 'video-editing' || f === 'ai-video')
+  return project.filters.some((f) => f === 'video-editing' || f === 'ai-video' || f === 'music-video')
     ? 'Request Video'
     : 'Request Build'
 }

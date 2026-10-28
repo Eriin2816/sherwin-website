@@ -32,7 +32,7 @@ export default function HeroSection() {
         <motion.div {...fadeUp(0.1)} className="flex justify-center mb-8">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide border border-[#0DACC9]/30 bg-[#0DACC9]/8 text-[#0DACC9]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#0DACC9] animate-pulse" />
-            AI Automation & Systems Developer
+            Full-Stack Developer & AI Automation Engineer
           </span>
         </motion.div>
 
@@ -54,8 +54,8 @@ export default function HeroSection() {
           {...fadeUp(0.35)}
           className="max-w-2xl mx-auto text-hero-sub text-lg leading-relaxed mb-10"
         >
-          I build GoHighLevel systems, AI automations, and high-converting websites
-          for service businesses ready to grow without growing their headcount.
+          I build web applications, e-commerce platforms, and AI-powered workflows
+          that connect your website, data, and day-to-day operations.
         </motion.p>
 
         {/* CTAs */}
@@ -79,10 +79,10 @@ export default function HeroSection() {
           className="flex flex-wrap justify-center items-center gap-6 text-muted-foreground text-xs"
         >
           {[
-            'GoHighLevel Certified',
-            'AI Automation Specialist',
-            'React & TypeScript Developer',
-            'Service Business Growth',
+            'React & TypeScript',
+            'APIs & Business Systems',
+            'n8n & GoHighLevel',
+            'GitHub & Cloud Deployment',
           ].map((badge) => (
             <span
               key={badge}

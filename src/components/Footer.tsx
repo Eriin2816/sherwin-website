@@ -131,10 +131,10 @@ export default function Footer() {
               {/* Middle: Tagline */}
               <div className="flex-1 flex items-center">
                 <p className="text-white text-xl font-bold leading-snug tracking-tight">
-                  Building smarter websites,
+                  Building web applications,
                   <br />
                   <span className="text-white/65">
-                    funnels & AI automation systems.
+                    AI workflows & connected business systems.
                   </span>
                 </p>
               </div>

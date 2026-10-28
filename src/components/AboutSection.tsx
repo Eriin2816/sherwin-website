@@ -7,12 +7,12 @@ import SectionBackground from '@/components/SectionBackground'
 import CountUp from '@/components/motion/CountUp'
 
 const strengths = [
-  'GoHighLevel account strategy & execution',
-  'AI-powered lead follow-up & voice agents',
-  'Workflow automation with n8n & Make',
-  'Conversion-focused web development',
-  'Funnel architecture & optimization',
-  'Service business scaling systems',
+  'React, Next.js & TypeScript applications',
+  'APIs, databases & authenticated workflows',
+  'n8n, GoHighLevel & AI integrations',
+  'Shopify Liquid & WordPress development',
+  'Git-based releases & production troubleshooting',
+  'Creative coding & automated video composition',
 ]
 
 export default function AboutSection() {
@@ -46,8 +46,10 @@ export default function AboutSection() {
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <div className="grid grid-cols-3 gap-4">
                   {[
-                    { value: 50, suffix: '+', label: 'Automations Built' },
-                    { value: 3, suffix: '+', label: 'Years Building' },
+                    // Verifiable figures as of October 2026: finished music videos, freelance
+                    // years since August 2024, and the work arrangement (not a performance result).
+                    { value: 4, suffix: '', label: 'Completed Music Videos' },
+                    { value: 2, suffix: '+', label: 'Years Freelancing' },
                     { value: 100, suffix: '%', label: 'Remote-First' },
                   ].map((stat) => (
                     <div key={stat.label} className="text-center">
@@ -87,16 +89,19 @@ export default function AboutSection() {
 
             <div className="space-y-4 text-muted-foreground text-base leading-relaxed mb-8">
               <p>
-                I'm Sherwin Marcelo — a systems developer and automation specialist focused on one thing:
-                helping service businesses scale without scaling their problems.
+                I'm Sherwin Marcelo, a full-stack developer and AI automation engineer based in Baliwag, Bulacan.
+                My Information Technology education at Baliuag University (2010–2015) gives me a foundation for
+                building and troubleshooting the systems businesses use every day.
               </p>
               <p>
-                From GoHighLevel CRM builds to AI voice agents to full-stack web development,
-                I design and build the backend infrastructure that lets great businesses run on autopilot.
+                Since 2024, I've worked with remote clients on web applications, WordPress and Shopify platforms,
+                CRM workflows, and AI-assisted operations. My work connects interfaces with APIs, databases,
+                reporting, and deployment—not just the page visitors see.
               </p>
               <p>
-                My work sits at the intersection of automation, AI, and conversion-focused design —
-                built for outcomes, not just aesthetics.
+                I use AI-assisted engineering to develop and refine working software, then validate the code,
+                integrations, and user experience. From business systems to programmatic music videos, I focus on
+                clear workflows and maintainable implementation.
               </p>
             </div>
 

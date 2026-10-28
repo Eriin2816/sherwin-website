@@ -238,12 +238,23 @@ function paginate(list: Project[]): Slot[][] {
   return pages
 }
 
-// The default "All" tab leads with visual work; everything else keeps data order.
-const ALL_TAB_LEAD = ['ai-video', 'video-editing']
+// The default "All" tab leads with engineering work, in this order; every other project keeps its
+// data order after them (Array.prototype.sort is stable).
+const ALL_TAB_PRIORITY = [
+  'gabay-bulacan',
+  'estimatorpro',
+  'showtime-pools',
+  'showtime-equipment-store',
+  'synful-novelties-shopify',
+  'skull-key',
+  'multimodal-ai-slack-assistant',
+  'hubstaff-expense',
+  'advertsai',
+]
 
 function allTabRank(project: Project) {
-  const rank = ALL_TAB_LEAD.findIndex((id) => project.filters.includes(id))
-  return rank === -1 ? ALL_TAB_LEAD.length : rank
+  const rank = ALL_TAB_PRIORITY.indexOf(project.id)
+  return rank === -1 ? ALL_TAB_PRIORITY.length : rank
 }
 
 const allTabProjects = [...projects].sort((a, b) => allTabRank(a) - allTabRank(b))

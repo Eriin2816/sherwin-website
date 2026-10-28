@@ -8,7 +8,7 @@ import {
   type PanInfo,
   type Variants,
 } from 'framer-motion'
-import { ArrowRight, CheckCircle2, ExternalLink, X } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, CheckCircle2, ExternalLink, X } from 'lucide-react'
 import type { Project } from '@/data/portfolio'
 import { LiquidButton } from '@/components/ui/liquid-glass-button'
 import PortfolioVideo, { pauseAllPortfolioVideos } from '@/components/PortfolioVideo'
@@ -56,6 +56,20 @@ function SheetMedia({ project }: { project: Project }) {
     >
       <WorkflowMedia project={project} fit={fitFor(project)} />
     </div>
+  )
+}
+
+/** Dot list, the same treatment as the highlights; used where a checkmark would overstate. */
+function DotList({ items }: { items: string[] }) {
+  return (
+    <ul className="grid gap-2.5">
+      {items.map((item, i) => (
+        <li key={i} className="flex gap-3 text-sm leading-relaxed text-muted-foreground md:text-[15px]">
+          <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#0DACC9]" />
+          {item}
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -259,6 +273,13 @@ export default function CaseStudySheet({
               </div>
             </motion.div>
 
+            {project.role && (
+              <motion.section variants={item}>
+                <h3 className={cn(LABEL, 'mb-3.5')}>My Role</h3>
+                <p className="max-w-[72ch] text-[15px] leading-[1.75] text-muted-foreground md:text-base">{project.role}</p>
+              </motion.section>
+            )}
+
             {/* Problem and Solution side by side */}
             <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] md:gap-12">
               <motion.section variants={item}>
@@ -271,6 +292,13 @@ export default function CaseStudySheet({
               </motion.section>
             </div>
 
+            {project.challenges && (
+              <motion.section variants={item}>
+                <h3 className={cn(LABEL, 'mb-3.5')}>Challenges</h3>
+                <DotList items={project.challenges} />
+              </motion.section>
+            )}
+
             {project.capabilities && (
               <motion.section variants={item}>
                 <h3 className={cn(LABEL, 'mb-3.5')}>Key Platform Capabilities</h3>
@@ -281,6 +309,12 @@ export default function CaseStudySheet({
             <motion.section variants={item}>
               <h3 className={cn(LABEL, 'mb-3.5')}>Outcome</h3>
               <CheckList items={project.outcome} />
+              {project.status && (
+                <p className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm leading-relaxed text-muted-foreground">
+                  <span className={LABEL}>Status</span>
+                  {project.status}
+                </p>
+              )}
             </motion.section>
 
             <motion.section variants={item}>
@@ -298,6 +332,12 @@ export default function CaseStudySheet({
             </motion.section>
 
             <motion.div variants={item} className="flex flex-wrap gap-3">
+              {project.links?.map((link) => (
+                <LiquidButton key={link.href} variant="glass" size="lg" href={link.href} target="_blank" rel="noopener noreferrer">
+                  {link.label}
+                  <ArrowUpRight size={14} />
+                </LiquidButton>
+              ))}
               <LiquidButton size="lg" href={CALENDLY_URL} target="_blank" rel="noopener noreferrer">
                 Book a Call
                 <ExternalLink size={14} />

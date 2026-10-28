@@ -45,7 +45,7 @@ export default function CTASection() {
             and start running systems?
           </h2>
           <p className="text-muted-foreground text-lg max-w-lg mx-auto leading-relaxed mb-10 relative">
-            Let's build the automation infrastructure your business needs to grow without burning you out.
+            Let's build the applications and automation your business needs to grow without burning you out.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 relative">
             <LiquidButton

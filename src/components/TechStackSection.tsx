@@ -55,7 +55,7 @@ export default function TechStackSection() {
                 />
                 {item.name}
                 <span className="text-[10px] text-muted-foreground/40 uppercase tracking-wider font-normal">
-                  {item.category}
+                  {item.category} · {item.level}
                 </span>
               </motion.span>
             ))}

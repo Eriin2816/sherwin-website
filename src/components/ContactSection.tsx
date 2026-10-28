@@ -34,7 +34,7 @@ export default function ContactSection() {
           >
             Tell me what you're trying
             <br />
-            to automate.
+            to build or automate.
           </h2>
           <p className="text-muted-foreground text-lg max-w-lg mx-auto leading-relaxed">
             I'll outline the build plan and the fastest path to launch.

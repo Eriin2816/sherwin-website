@@ -100,6 +100,7 @@ function AppShell() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/case-study" element={<CaseStudyPage />} />
+        <Route path="/case-study/:slug" element={<CaseStudyPage />} />
       </Routes>
       <Footer />
     </div>
